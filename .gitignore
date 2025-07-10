@@ -1,0 +1,68 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+[Ll]ogs/
+
+# Npm packages and build artifacts
+node_modules/
+dist/
+build/
+
+# ASP.NET files
+*.dbmdl
+*.dbproj.schemaview
+*.pdb
+*.cache
+*.log
+*.vspscc
+*.vssscc
+*.ncb
+*.sdf
+*.suo
+*.sln.docstates
+*.user
+*.vsconfig
+
+# Umbraco specific
+src/umbraco/Data/TEMP/
+src/umbraco/Data/Installer/
+src/umbraco/Data/Models/
+src/App_Data/umbraco.config
+src/App_Data/Logs/
+src/App_Data/TEMP/
+src/App_Data/NuGetBackup/
+src/App_Data/umbraco.sdf
+src/App_Plugins/**/package.manifest.generated.cs
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.vc.db
+
+# Rider (JetBrains)
+.idea/
+*.sln.iml
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Publish profiles and transforms
+Properties/PublishProfiles/
+*.pubxml
+*.publishproj
