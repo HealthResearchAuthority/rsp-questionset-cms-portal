@@ -4,18 +4,32 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Controllers\**" />
+    <Compile Remove="Helpers\**" />
+    <Compile Remove="uSync\v15\Content\**" />
+    <Content Remove="Controllers\**" />
+    <Content Remove="Helpers\**" />
+    <Content Remove="uSync\v15\Content\**" />
+    <EmbeddedResource Remove="Controllers\**" />
+    <EmbeddedResource Remove="Helpers\**" />
+    <EmbeddedResource Remove="uSync\v15\Content\**" />
+    <None Remove="Controllers\**" />
+    <None Remove="Helpers\**" />
+    <None Remove="uSync\v15\Content\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.16" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.7.1" />
-    <PackageReference Include="Umbraco.Cms" Version="15.4.2" />
+    <PackageReference Include="Umbraco.Cms" Version="13.9.2" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Opt-in to app-local ICU to ensure consistent globalization APIs across different platforms -->
     <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
-    <PackageReference Include="uSync" Version="15.1.9" />
+    <PackageReference Include="uSync" Version="13.3.1" />
     <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3" Condition="$(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx')))" />
   </ItemGroup>
 
