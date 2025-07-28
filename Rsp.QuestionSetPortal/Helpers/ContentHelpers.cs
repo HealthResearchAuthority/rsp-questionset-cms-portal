@@ -12,17 +12,22 @@ public static class ContentHelpers
     {
         var result = new List<QuestionModel>();
 
-        foreach (var question in section.Children<Question>())
+        foreach (var questionSlot in section.Children<QuestionSlot>())
         {
-            var questionModel = question.Adapt<QuestionModel>();
+            var associatedQuestion = questionSlot.QuestionContent as Question;
+            var questionCategory = questionSlot.Category?.FirstOrDefault() as Category;
 
-            questionModel.Answers = TransformAnswers(question);
-            questionModel.ValidationRules = TransformValidationRules(question);
-            questionModel.Name = question.QuestionName;
-            questionModel.GuidanceComponents = question.GuidanceContent != null ? TransformUiComponent(question.GuidanceContent) : [];
+            var questionModel = associatedQuestion.Adapt<QuestionModel>();
+
+            questionModel.CategoryId = questionCategory?.CategoryId;
+            questionModel.Answers = TransformAnswers(associatedQuestion);
+            questionModel.ValidationRules = TransformValidationRules(questionSlot);
+            questionModel.Name = associatedQuestion.QuestionName;
+            questionModel.GuidanceComponents = associatedQuestion.GuidanceContent != null ? TransformUiComponent(associatedQuestion.GuidanceContent) : [];
 
             result.Add(questionModel);
         }
+
         return result;
     }
 
@@ -101,7 +106,7 @@ public static class ContentHelpers
         return result;
     }
 
-    public static IList<RuleModel> TransformValidationRules(Question question)
+    public static IList<RuleModel> TransformValidationRules(QuestionSlot question)
     {
         var result = new List<RuleModel>();
 
@@ -111,32 +116,35 @@ public static class ContentHelpers
             foreach (var rule in rules)
             {
                 var strongRule = rule.Content as ValidationRule;
-                var ruleModel = strongRule.Adapt<RuleModel>();
 
-                ruleModel.QuestionId = question.Id.ToString();
-                ruleModel.ParentQuestion = strongRule.ParentQuestion.Adapt<QuestionModel>();
-                if (ruleModel.ParentQuestion != null)
+                if (strongRule != null)
                 {
-                    ruleModel.ParentQuestion.Name = strongRule.ParentQuestion.Value<string>("questionName");
-                }
+                    var ruleModel = strongRule.Adapt<RuleModel>();
 
-                ruleModel.Conditions = new List<ConditionModel>();
-
-                foreach (var condition in strongRule.Conditions)
-                {
-                    var strongCondition = condition.Content as ValidationCondition;
-
-                    var conditionModel = strongCondition.Adapt<ConditionModel>();
-
-                    if (strongCondition?.ParentOptions != null)
+                    ruleModel.QuestionId = question.Id.ToString();
+                    ruleModel.ParentQuestion = strongRule.ParentQuestion.Adapt<QuestionModel>();
+                    if (ruleModel.ParentQuestion != null)
                     {
-                        conditionModel.ParentOptions = strongCondition.ParentOptions.Select(x => x.Adapt<AnswerModel>()).ToList();
+                        ruleModel.ParentQuestion.Name = strongRule.ParentQuestion.Value<string>("questionName");
                     }
 
-                    ruleModel.Conditions.Add(conditionModel);
-                }
+                    ruleModel.Conditions = new List<ConditionModel>();
 
-                result.Add(ruleModel);
+                    foreach (var condition in strongRule.Conditions)
+                    {
+                        var strongCondition = condition.Content as ValidationCondition;
+
+                        var conditionModel = strongCondition.Adapt<ConditionModel>();
+
+                        if (strongCondition?.ParentOptions != null)
+                        {
+                            conditionModel.ParentOptions = strongCondition.ParentOptions.Select(x => x.Adapt<AnswerModel>()).ToList();
+                        }
+
+                        ruleModel.Conditions.Add(conditionModel);
+                    }
+                    result.Add(ruleModel);
+                }
             }
         }
 

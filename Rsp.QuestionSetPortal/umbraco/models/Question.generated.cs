@@ -58,14 +58,6 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string AnswerDataType => this.Value<string>(_publishedValueFallback, "answerDataType");
 
 		///<summary>
-		/// Conformance
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("conformance")]
-		public virtual string Conformance => this.Value<string>(_publishedValueFallback, "conformance");
-
-		///<summary>
 		/// Editor Comment
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
@@ -82,7 +74,7 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel GuidanceContent => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockListModel>(_publishedValueFallback, "guidanceContent");
 
 		///<summary>
-		/// Possible answers: Populate possible answer options if the question type is "lookup list" or "boolean". Leave blank otherwise
+		/// Possible Answers
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
@@ -98,19 +90,19 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string QuestionFormat => this.Value<string>(_publishedValueFallback, "questionFormat");
 
 		///<summary>
+		/// Question Id
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("questionId")]
+		public virtual string QuestionId => this.Value<string>(_publishedValueFallback, "questionId");
+
+		///<summary>
 		/// Question Name: Enter the question text
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("questionName")]
 		public virtual string QuestionName => this.Value<string>(_publishedValueFallback, "questionName");
-
-		///<summary>
-		/// Validation Rules
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("validationRules")]
-		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel ValidationRules => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockListModel>(_publishedValueFallback, "validationRules");
 	}
 }

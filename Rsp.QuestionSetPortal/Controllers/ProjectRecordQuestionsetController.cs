@@ -8,7 +8,7 @@ using Umbraco.Cms.Web.Common.PublishedModels;
 namespace Rsp.QuestionSetService.Controllers
 {
     [ApiController]
-    [Route("/umbraco/api/projectrecordquestionset")]
+    [Route("/umbraco/api/projectRecordQuestionset")]
     public class ProjectRecordQuestionsetController : ControllerBase
     {
         private readonly IPublishedContentQuery _contentQuery;
@@ -26,12 +26,22 @@ namespace Rsp.QuestionSetService.Controllers
             if (!string.IsNullOrEmpty(sectionId))
             {
                 var section = _contentQuery.Content(sectionId) as Section;
+                var questionSet = section?.AncestorOrSelf<QuestionSet>();
+
+                if (questionSet == null)
+                {
+                    return result;
+                }
+
+                PopulateGeneralQuestionSetMetadata(result, questionSet);
+
                 if (section != null)
                 {
                     var sectionModel = new SectionModel
                     {
                         SectionName = section.SectionName,
                         Id = section.Key.ToString(),
+                        SectionId = !string.IsNullOrEmpty(section.SectionId) ? section.SectionId : null,
                         GuidanceComponents = section.GuidanceContent != null ? ContentHelpers.TransformUiComponent(section.GuidanceContent) : []
                     };
 
@@ -45,31 +55,33 @@ namespace Rsp.QuestionSetService.Controllers
                 if (string.IsNullOrEmpty(questionSetId))
                 {
                     // no id passed so go ahead and get the active questionset
-                    var questionsetRepo = _contentQuery.ContentAtRoot().FirstOrDefault(x => x.ContentType.Alias == QuestionsetRepository.ModelTypeAlias);
+                    var activeQuestionSet = GetActiveQuestionset();
 
-                    if (questionsetRepo != null)
+                    if (activeQuestionSet != null)
                     {
-                        var activeQuestionSet = questionsetRepo.Value<IPublishedContent>("activeQuestionset");
+                        questionSetId = activeQuestionSet.Key.ToString();
 
-                        if (activeQuestionSet != null)
-                        {
-                            questionSetId = activeQuestionSet.Key.ToString();
-                        }
+                        PopulateGeneralQuestionSetMetadata(result, activeQuestionSet);
                     }
                 }
 
                 if (!string.IsNullOrEmpty(questionSetId))
                 {
-                    var questionSet = _contentQuery.Content(questionSetId);
+                    var questionSet = _contentQuery.Content(questionSetId) as QuestionSet;
 
-                    if (questionSet != null)
+                    PopulateGeneralQuestionSetMetadata(result, questionSet);
+
+                    var sections = questionSet?.Descendants<Section>();
+
+                    if (sections != null)
                     {
-                        foreach (var section in questionSet.Children<Section>())
+                        foreach (var section in sections)
                         {
                             var sectionModel = new SectionModel
                             {
                                 SectionName = section.SectionName,
                                 Id = section.Key.ToString(),
+                                SectionId = !string.IsNullOrEmpty(section.SectionId) ? section.SectionId : null,
                                 GuidanceComponents = section.GuidanceContent != null ? ContentHelpers.TransformUiComponent(section.GuidanceContent) : []
                             };
 
@@ -89,25 +101,18 @@ namespace Rsp.QuestionSetService.Controllers
         {
             var result = new List<QuestionSectionResponse>();
 
-            var questionsetRepo = _contentQuery.ContentAtRoot().FirstOrDefault(x => x.ContentType.Alias == QuestionsetRepository.ModelTypeAlias);
+            var questionSet = GetActiveQuestionset();
 
-            if (questionsetRepo != null)
+            if (questionSet != null)
             {
-                var activeQuestionSet = questionsetRepo.Value<IPublishedContent>("activeQuestionset");
-
-                if (activeQuestionSet != null)
+                foreach (var section in questionSet.Children<Section>())
                 {
-                    var questionSet = _contentQuery.Content(activeQuestionSet.Key);
-
-                    foreach (var section in questionSet.Children<Section>())
+                    result.Add(new QuestionSectionResponse
                     {
-                        result.Add(new QuestionSectionResponse
-                        {
-                            SectionId = section.Key.ToString(),
-                            SectionName = section.SectionName.ToString(),
-                            QuestionCategoryId = section.Key.ToString(),
-                        });
-                    }
+                        SectionId = section.Key.ToString(),
+                        SectionName = section?.SectionName?.ToString(),
+                        QuestionCategoryId = section?.Key.ToString(),
+                    });
                 }
             }
 
@@ -126,7 +131,7 @@ namespace Rsp.QuestionSetService.Controllers
 
             if (currentSection != null)
             {
-                var allSections = currentSection.Parent<QuestionSet>()?.Children<Section>();
+                var allSections = currentSection.Parent<QuestionsetContentContainer>()?.Children<Section>();
 
                 if (allSections != null)
                 {
@@ -136,9 +141,9 @@ namespace Rsp.QuestionSetService.Controllers
                         var nextSection = allSections.ElementAtOrDefault(currentSectionIndex + 1);
                         var sectionModel = new QuestionSectionResponse
                         {
-                            SectionId = nextSection.Key.ToString(),
-                            SectionName = nextSection.SectionName.ToString(),
-                            QuestionCategoryId = nextSection.Key.ToString(),
+                            SectionId = nextSection?.Key.ToString(),
+                            SectionName = nextSection?.SectionName?.ToString(),
+                            QuestionCategoryId = nextSection?.Key.ToString(),
                         };
 
                         return sectionModel;
@@ -161,7 +166,7 @@ namespace Rsp.QuestionSetService.Controllers
 
             if (currentSection != null)
             {
-                var allSections = currentSection.Parent<QuestionSet>()?.Children<Section>();
+                var allSections = currentSection.Parent<QuestionsetContentContainer>()?.Children<Section>();
 
                 if (allSections != null)
                 {
@@ -171,9 +176,9 @@ namespace Rsp.QuestionSetService.Controllers
                         var nextSection = allSections.ElementAtOrDefault(currentSectionIndex - 1);
                         var sectionModel = new QuestionSectionResponse
                         {
-                            SectionId = nextSection.Key.ToString(),
-                            SectionName = nextSection.SectionName.ToString(),
-                            QuestionCategoryId = nextSection.Key.ToString(),
+                            SectionId = nextSection?.Key.ToString(),
+                            SectionName = nextSection?.SectionName?.ToString(),
+                            QuestionCategoryId = nextSection?.Key.ToString(),
                         };
 
                         return sectionModel;
@@ -188,49 +193,42 @@ namespace Rsp.QuestionSetService.Controllers
         public IEnumerable<QuestionCategoryResponse> GetQuestionCategories()
         {
             var result = new List<QuestionCategoryResponse>();
+            var questionSet = GetActiveQuestionset();
 
-            var questionsetRepo = _contentQuery.ContentAtRoot().FirstOrDefault(x => x.ContentType.Alias == QuestionsetRepository.ModelTypeAlias);
-
-            if (questionsetRepo != null)
+            if (questionSet != null)
             {
-                var activeQuestionSet = questionsetRepo.Value<IPublishedContent>("activeQuestionset");
-
-                if (activeQuestionSet != null)
+                foreach (var category in questionSet.Descendants<Category>())
                 {
-                    var questionSet = _contentQuery.Content(activeQuestionSet.Key);
-
-                    foreach (var section in questionSet.Children<Section>())
+                    result.Add(new QuestionCategoryResponse
                     {
-                        result.Add(new QuestionCategoryResponse
-                        {
-                            CategoryId = section.Key.ToString(),
-                            CategoryName = section.SectionName.ToString()
-                        });
-                    }
+                        CategoryId = category.Key.ToString(),
+                        CategoryName = category.Name
+                    });
                 }
             }
 
             return result;
         }
 
-        private object MapContent(IPublishedContent content)
+        private static void PopulateGeneralQuestionSetMetadata(QuestionSetModel model, QuestionSet questionset)
         {
-            var customPropertyAliases = content.ContentType
-                .PropertyTypes
-                .Select(p => p.Alias)
-                .ToHashSet();
+            model.Id = questionset.Key.ToString();
+            model.Version = questionset.VersionNumber.ToString();
+            model.Status = questionset.Status;
+            model.ActiveFrom = questionset.ActiveFrom != DateTime.MinValue ? questionset?.ActiveFrom : null;
+            model.ActiveTo = questionset?.ActiveTo != DateTime.MinValue ? questionset?.ActiveTo : null;
+        }
 
-            return new
+        private QuestionSet? GetActiveQuestionset()
+        {
+            var questionsetRepo = _contentQuery.ContentAtRoot()?.FirstOrDefault()?.Descendant<QuestionsetRepository>();
+
+            if (questionsetRepo != null)
             {
-                id = content.Id,
-                name = content.Name,
-                contentType = content.ContentType.Alias,
-                properties = content.Properties.Where(x => customPropertyAliases.Contains(x.Alias)).ToDictionary(
-                    p => p.Alias,
-                    p => p.GetValue()
-                ),
-                children = content.Children.Select(MapContent)
-            };
+                var activeQuestionSet = questionsetRepo.Value<IPublishedContent>("activeQuestionset") as QuestionSet;
+                return activeQuestionSet;
+            }
+            return null;
         }
     }
 }

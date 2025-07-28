@@ -50,6 +50,20 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		// properties
 
 		///<summary>
+		/// Active from
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("activeFrom")]
+		public virtual global::System.DateTime ActiveFrom => this.Value<global::System.DateTime>(_publishedValueFallback, "activeFrom");
+
+		///<summary>
+		/// Active to
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("activeTo")]
+		public virtual global::System.DateTime ActiveTo => this.Value<global::System.DateTime>(_publishedValueFallback, "activeTo");
+
+		///<summary>
 		/// Comments
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
