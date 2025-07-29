@@ -18,50 +18,43 @@ namespace Rsp.QuestionSetService.Controllers
             _contentQuery = contentQuery;
         }
 
-        [HttpGet("GetQuestionSet")]
-        public QuestionSetModel GetQuestionSet(string? sectionId = null, string? questionSetId = null)
+        [HttpGet("getQuestionSet")]
+        public QuestionSetModel GetQuestionSet(string? sectionId = null, string? questionSetId = null, string? version = null)
         {
             var result = new QuestionSetModel();
 
             if (!string.IsNullOrEmpty(sectionId))
             {
-                var section = _contentQuery.Content(sectionId) as Section;
-                var questionSet = section?.AncestorOrSelf<QuestionSet>();
+                var activeQuestionSet = GetQuestionsetByVersion(version);
 
-                if (questionSet == null)
+                var section = activeQuestionSet?.Descendants<Section>().FirstOrDefault(x => x.SectionId != null &&
+                    x.SectionId.Equals(sectionId, StringComparison.InvariantCultureIgnoreCase));
+
+                if (activeQuestionSet == null || section == null)
                 {
                     return result;
                 }
 
-                PopulateGeneralQuestionSetMetadata(result, questionSet);
+                ContentHelpers.PopulateGeneralQuestionSetMetadata(result, activeQuestionSet);
 
-                if (section != null)
-                {
-                    var sectionModel = new SectionModel
-                    {
-                        SectionName = section.SectionName,
-                        Id = section.Key.ToString(),
-                        SectionId = !string.IsNullOrEmpty(section.SectionId) ? section.SectionId : null,
-                        GuidanceComponents = section.GuidanceContent != null ? ContentHelpers.TransformUiComponent(section.GuidanceContent) : []
-                    };
+                var sectionModel = ContentHelpers.PopulateSectionModel(section);
 
-                    sectionModel.Questions = ContentHelpers.TransformQuestions(section);
+                sectionModel.Questions = ContentHelpers.TransformQuestions(section, result.Version);
 
-                    result.Sections.Add(sectionModel);
-                }
+                result.Sections.Add(sectionModel);
             }
             else
             {
                 if (string.IsNullOrEmpty(questionSetId))
                 {
                     // no id passed so go ahead and get the active questionset
-                    var activeQuestionSet = GetActiveQuestionset();
+                    var activeQuestionSet = GetQuestionsetByVersion(version);
 
                     if (activeQuestionSet != null)
                     {
                         questionSetId = activeQuestionSet.Key.ToString();
 
-                        PopulateGeneralQuestionSetMetadata(result, activeQuestionSet);
+                        ContentHelpers.PopulateGeneralQuestionSetMetadata(result, activeQuestionSet);
                     }
                 }
 
@@ -69,7 +62,7 @@ namespace Rsp.QuestionSetService.Controllers
                 {
                     var questionSet = _contentQuery.Content(questionSetId) as QuestionSet;
 
-                    PopulateGeneralQuestionSetMetadata(result, questionSet);
+                    ContentHelpers.PopulateGeneralQuestionSetMetadata(result, questionSet);
 
                     var sections = questionSet?.Descendants<Section>();
 
@@ -77,15 +70,9 @@ namespace Rsp.QuestionSetService.Controllers
                     {
                         foreach (var section in sections)
                         {
-                            var sectionModel = new SectionModel
-                            {
-                                SectionName = section.SectionName,
-                                Id = section.Key.ToString(),
-                                SectionId = !string.IsNullOrEmpty(section.SectionId) ? section.SectionId : null,
-                                GuidanceComponents = section.GuidanceContent != null ? ContentHelpers.TransformUiComponent(section.GuidanceContent) : []
-                            };
+                            var sectionModel = ContentHelpers.PopulateSectionModel(section);
 
-                            sectionModel.Questions = ContentHelpers.TransformQuestions(section);
+                            sectionModel.Questions = ContentHelpers.TransformQuestions(section, result.Version);
 
                             result.Sections.Add(sectionModel);
                         }
@@ -96,22 +83,23 @@ namespace Rsp.QuestionSetService.Controllers
             return result;
         }
 
-        [HttpGet("GetQuestionSections")]
-        public IEnumerable<QuestionSectionResponse> GetQuestionSections()
+        [HttpGet("getQuestionSections")]
+        public IEnumerable<QuestionSectionResponse> GetQuestionSections(string? version = null)
         {
             var result = new List<QuestionSectionResponse>();
 
-            var questionSet = GetActiveQuestionset();
+            var questionSet = GetQuestionsetByVersion();
 
             if (questionSet != null)
             {
-                foreach (var section in questionSet.Children<Section>())
+                foreach (var section in questionSet.Descendants<Section>())
                 {
+                    var category = section.Category as Category;
                     result.Add(new QuestionSectionResponse
                     {
-                        SectionId = section.Key.ToString(),
+                        SectionId = section.SectionId,
                         SectionName = section?.SectionName?.ToString(),
-                        QuestionCategoryId = section?.Key.ToString(),
+                        QuestionCategoryId = category?.CategoryId,
                     });
                 }
             }
@@ -119,15 +107,22 @@ namespace Rsp.QuestionSetService.Controllers
             return result;
         }
 
-        [HttpGet("GetNextQuestionSection")]
-        public QuestionSectionResponse? GetNextQuestionSection(string currentSectionId)
+        [HttpGet("getNextQuestionSection")]
+        public QuestionSectionResponse? GetNextQuestionSection(string currentSectionId, string? version = null)
         {
             if (string.IsNullOrEmpty(currentSectionId))
             {
                 return null;
             }
 
-            var currentSection = _contentQuery.Content(currentSectionId);
+            var questionset = GetQuestionsetByVersion(version);
+            var currentSection = questionset?
+                .Descendants<Section>()
+                .FirstOrDefault(x =>
+                    !string.IsNullOrEmpty(x.SectionId) &&
+                     x.SectionId
+                    .Equals(currentSectionId, StringComparison.InvariantCultureIgnoreCase)
+                );
 
             if (currentSection != null)
             {
@@ -139,11 +134,13 @@ namespace Rsp.QuestionSetService.Controllers
                     if (allSections.ElementAtOrDefault(currentSectionIndex + 1) != null)
                     {
                         var nextSection = allSections.ElementAtOrDefault(currentSectionIndex + 1);
+                        var category = nextSection?.Category as Category;
+
                         var sectionModel = new QuestionSectionResponse
                         {
-                            SectionId = nextSection?.Key.ToString(),
+                            SectionId = nextSection?.SectionId,
                             SectionName = nextSection?.SectionName?.ToString(),
-                            QuestionCategoryId = nextSection?.Key.ToString(),
+                            QuestionCategoryId = category?.CategoryId,
                         };
 
                         return sectionModel;
@@ -154,15 +151,22 @@ namespace Rsp.QuestionSetService.Controllers
             return null;
         }
 
-        [HttpGet("GetPreviousQuestionSection")]
-        public QuestionSectionResponse? GetPreviousQuestionSection(string currentSectionId)
+        [HttpGet("getPreviousQuestionSection")]
+        public QuestionSectionResponse? GetPreviousQuestionSection(string currentSectionId, string? version = null)
         {
             if (string.IsNullOrEmpty(currentSectionId))
             {
                 return null;
             }
 
-            var currentSection = _contentQuery.Content(currentSectionId);
+            var questionset = GetQuestionsetByVersion(version);
+            var currentSection = questionset?
+                .Descendants<Section>()
+                .FirstOrDefault(x =>
+                    !string.IsNullOrEmpty(x.SectionId) &&
+                     x.SectionId
+                    .Equals(currentSectionId, StringComparison.InvariantCultureIgnoreCase)
+                );
 
             if (currentSection != null)
             {
@@ -173,12 +177,14 @@ namespace Rsp.QuestionSetService.Controllers
                     var currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
                     if (allSections.ElementAtOrDefault(currentSectionIndex - 1) != null)
                     {
-                        var nextSection = allSections.ElementAtOrDefault(currentSectionIndex - 1);
+                        var prevSection = allSections.ElementAtOrDefault(currentSectionIndex - 1);
+                        var category = prevSection?.Category as Category;
+
                         var sectionModel = new QuestionSectionResponse
                         {
-                            SectionId = nextSection?.Key.ToString(),
-                            SectionName = nextSection?.SectionName?.ToString(),
-                            QuestionCategoryId = nextSection?.Key.ToString(),
+                            SectionId = prevSection?.SectionId,
+                            SectionName = prevSection?.SectionName?.ToString(),
+                            QuestionCategoryId = category?.CategoryId,
                         };
 
                         return sectionModel;
@@ -189,11 +195,11 @@ namespace Rsp.QuestionSetService.Controllers
             return null;
         }
 
-        [HttpGet("GetQuestionCategories")]
-        public IEnumerable<QuestionCategoryResponse> GetQuestionCategories()
+        [HttpGet("getQuestionCategories")]
+        public IEnumerable<QuestionCategoryResponse> GetQuestionCategories(string? version = null)
         {
             var result = new List<QuestionCategoryResponse>();
-            var questionSet = GetActiveQuestionset();
+            var questionSet = GetQuestionsetByVersion(version);
 
             if (questionSet != null)
             {
@@ -201,8 +207,9 @@ namespace Rsp.QuestionSetService.Controllers
                 {
                     result.Add(new QuestionCategoryResponse
                     {
-                        CategoryId = category.Key.ToString(),
-                        CategoryName = category.Name
+                        CategoryId = category.CategoryId!,
+                        CategoryName = category.Name,
+                        VersionId = questionSet.VersionNumber.ToString()
                     });
                 }
             }
@@ -210,24 +217,33 @@ namespace Rsp.QuestionSetService.Controllers
             return result;
         }
 
-        private static void PopulateGeneralQuestionSetMetadata(QuestionSetModel model, QuestionSet questionset)
-        {
-            model.Id = questionset.Key.ToString();
-            model.Version = questionset.VersionNumber.ToString();
-            model.Status = questionset.Status;
-            model.ActiveFrom = questionset.ActiveFrom != DateTime.MinValue ? questionset?.ActiveFrom : null;
-            model.ActiveTo = questionset?.ActiveTo != DateTime.MinValue ? questionset?.ActiveTo : null;
-        }
-
-        private QuestionSet? GetActiveQuestionset()
+        public QuestionSet? GetQuestionsetByVersion(string? version = null)
         {
             var questionsetRepo = _contentQuery.ContentAtRoot()?.FirstOrDefault()?.Descendant<QuestionsetRepository>();
-
             if (questionsetRepo != null)
             {
-                var activeQuestionSet = questionsetRepo.Value<IPublishedContent>("activeQuestionset") as QuestionSet;
-                return activeQuestionSet;
+                if (string.IsNullOrEmpty(version))
+                {
+                    // get active questionset because version is not specified
+                    var activeQuestionSet = questionsetRepo.Value<IPublishedContent>("activeQuestionset") as QuestionSet;
+                    return activeQuestionSet;
+                }
+                else
+                {
+                    // version is specified so get questionset by version
+                    var questionset = questionsetRepo
+                        .Children<QuestionSet>()?
+                        .FirstOrDefault(x =>
+                            x.VersionNumber
+                            .ToString()
+                            .Equals(version, StringComparison.InvariantCultureIgnoreCase)
+                        );
+
+                    return questionset;
+                }
             }
+
+            // questionset repository does not exist
             return null;
         }
     }

@@ -1,9 +1,10 @@
-﻿namespace Rsp.QuestionSetService.Models
+﻿using Rsp.QuestionSetPortal.Models;
+
+namespace Rsp.QuestionSetService.Models
 {
-    public class AnswerModel
+    public class AnswerModel : BaseContentObject
     {
-        public string OptionName { get; set; }
-        public string Id { get; set; }
-        public string Key { get; set; }
+        public string? OptionName { get; set; }
+        public string? Id { get; set; }
     }
 }

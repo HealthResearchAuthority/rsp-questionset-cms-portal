@@ -5,6 +5,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Controllers\ModificationsQuestionsetController.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="App_Plugins\DiploGodMode\backoffice\Css\godMode.css" />
     <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\contentBrowser.html" />
     <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\dataTypeBrowser.html" />

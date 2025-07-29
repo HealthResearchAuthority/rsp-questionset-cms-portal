@@ -90,14 +90,6 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string QuestionFormat => this.Value<string>(_publishedValueFallback, "questionFormat");
 
 		///<summary>
-		/// Question Id
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("questionId")]
-		public virtual string QuestionId => this.Value<string>(_publishedValueFallback, "questionId");
-
-		///<summary>
 		/// Question Name: Enter the question text
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
