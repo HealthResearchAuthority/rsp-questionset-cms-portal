@@ -1,0 +1,13 @@
+﻿<div ng-controller="CreateNewVersionController">
+    <div class="umb-dialog">
+        <div class="umb-pane">
+            <p class="abstract ng-scope">This create a new verion of this node including all descendants.</p>
+            <p class="abstract ng-scope">Linked content will be relinked to the new copy, and the status of the new version will be automatically set to <strong>draft</strong>.</p>
+            <div class="btn-toolbar umb-btn-toolbar">
+                <umb-button type="button" button-style="success" label="Create" action="create()"></umb-button>
+                <umb-button type="button" button-style="link" label="Cancel" action="cancel()"></umb-button>
+            </div>
+            <umb-load-indicator ng-show="loading"></umb-load-indicator>
+        </div>
+    </div>
+</div>

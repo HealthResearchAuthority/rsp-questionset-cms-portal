@@ -1,0 +1,75 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="App_Plugins\DiploGodMode\backoffice\Css\godMode.css" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\contentBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\dataTypeBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\diagnosticBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\docTypeBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\godModeHeader.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\intro.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\mediaBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\memberBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\nuCacheViewer.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\partialBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\reflectionBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\serviceBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\tagBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\templateBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\typeBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\typesIntro.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\usageBrowser.html" />
+    <Content Include="App_Plugins\DiploGodMode\backoffice\godModeTree\utilityBrowser.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.Config.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.ContentBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.DataTypeBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.DiagnosticBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.DocTypeBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.Intro.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.MediaBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.MemberBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.nuCacheViewer.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.PartialBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.ReflectionBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.Resources.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.ServiceBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.TagBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.TemplateBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.TypeBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.TypesIntro.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.UsageBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\backoffice\Scripts\GodMode.UtilityBrowser.Controller.js" />
+    <None Include="App_Plugins\DiploGodMode\package.manifest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Diplo.GodMode" Version="13.1.0" />
+    <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="Umbraco.Cms" Version="13.9.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Opt-in to app-local ICU to ensure consistent globalization APIs across different platforms -->
+    <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+    <PackageReference Include="uSync" Version="13.3.1" />
+    <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3" Condition="$(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx')))" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Razor files are needed for the backoffice to work correctly -->
+    <CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Remove RazorCompileOnBuild and RazorCompileOnPublish when not using ModelsMode InMemoryAuto -->
+    <RazorCompileOnBuild>false</RazorCompileOnBuild>
+    <RazorCompileOnPublish>false</RazorCompileOnPublish>
+  </PropertyGroup>
+
+</Project>
