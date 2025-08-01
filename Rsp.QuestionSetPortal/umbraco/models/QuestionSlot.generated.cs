@@ -82,14 +82,6 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string Conformance => global::Umbraco.Cms.Web.Common.PublishedModels.QuestionConditionalityComposition.GetConformance(this, _publishedValueFallback);
 
 		///<summary>
-		/// Possible Answers: Populate possible answer options if the question type is "lookup list" or "boolean". Leave blank otherwise
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("possibleAnswers")]
-		public virtual global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent> PossibleAnswers => global::Umbraco.Cms.Web.Common.PublishedModels.QuestionConditionalityComposition.GetPossibleAnswers(this, _publishedValueFallback);
-
-		///<summary>
 		/// Validation Rules
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]

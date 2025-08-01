@@ -1,11 +1,14 @@
 ﻿using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
+using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Rsp.QuestionSetPortal.Notifications;
 
-public class PublishingNotifications(IPublishedContentQuery contentService) : INotificationHandler<ContentPublishingNotification>
+public class PublishingNotifications(
+    IPublishedContentQuery contentService,
+    IBackOfficeSecurity backofficeSecutiry) : INotificationHandler<ContentPublishingNotification>
 {
     // execute this notification when saving the following content types
     private readonly string[] TypeAlias =
@@ -19,12 +22,14 @@ public class PublishingNotifications(IPublishedContentQuery contentService) : IN
 
     public void Handle(ContentPublishingNotification notification)
     {
+        var loggedInUser = backofficeSecutiry?.CurrentUser?.IsAdmin();
+
         foreach (var node in notification.PublishedEntities)
         {
             if (!TypeAlias.Contains(node.ContentType.Alias))
             {
                 return;
-            }
+            }            
 
             var savingNode = contentService.Content(node.Id);
 

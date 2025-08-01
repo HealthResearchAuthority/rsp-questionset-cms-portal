@@ -20,7 +20,7 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 {
 	/// <summary>Modifications Question Set</summary>
 	[PublishedModel("modificationsQuestionSet")]
-	public partial class ModificationsQuestionSet : PublishedContentModel
+	public partial class ModificationsQuestionSet : PublishedContentModel, IQuestionsetMetadataComposition
 	{
 		// helpers
 #pragma warning disable 0109 // new is redundant
@@ -56,5 +56,34 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("comments")]
 		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel Comments => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockListModel>(_publishedValueFallback, "comments");
+
+		///<summary>
+		/// Active from
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("activeFrom")]
+		public virtual global::System.DateTime ActiveFrom => global::Umbraco.Cms.Web.Common.PublishedModels.QuestionsetMetadataComposition.GetActiveFrom(this, _publishedValueFallback);
+
+		///<summary>
+		/// Active to
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("activeTo")]
+		public virtual global::System.DateTime ActiveTo => global::Umbraco.Cms.Web.Common.PublishedModels.QuestionsetMetadataComposition.GetActiveTo(this, _publishedValueFallback);
+
+		///<summary>
+		/// Status
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("status")]
+		public virtual string Status => global::Umbraco.Cms.Web.Common.PublishedModels.QuestionsetMetadataComposition.GetStatus(this, _publishedValueFallback);
+
+		///<summary>
+		/// Version number
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("versionNumber")]
+		public virtual int VersionNumber => global::Umbraco.Cms.Web.Common.PublishedModels.QuestionsetMetadataComposition.GetVersionNumber(this, _publishedValueFallback);
 	}
 }

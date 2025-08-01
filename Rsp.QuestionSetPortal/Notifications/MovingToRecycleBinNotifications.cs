@@ -1,11 +1,14 @@
 ﻿using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
+using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Rsp.QuestionSetPortal.Notifications;
 
-public class MovingToRecycleBinNotifications(IPublishedContentQuery contentService) : INotificationHandler<ContentMovingToRecycleBinNotification>
+public class MovingToRecycleBinNotifications(
+    IPublishedContentQuery contentService,
+    IBackOfficeSecurity backofficeSecutiry) : INotificationHandler<ContentMovingToRecycleBinNotification>
 {
     // execute this notification when saving the following content types
     private readonly string[] TypeAlias =
@@ -19,6 +22,15 @@ public class MovingToRecycleBinNotifications(IPublishedContentQuery contentServi
 
     public void Handle(ContentMovingToRecycleBinNotification notification)
     {
+        // get the current CMS user
+        var currentCmsUser = backofficeSecutiry.CurrentUser;
+
+        // check if CMS user is admin in which case let them delete the content
+        if (currentCmsUser != null && currentCmsUser.IsAdmin())
+        {
+            return;
+        }
+
         foreach (var node in notification.MoveInfoCollection)
         {
             if (!TypeAlias.Contains(node.Entity.ContentType.Alias))
