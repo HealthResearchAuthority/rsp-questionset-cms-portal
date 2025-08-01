@@ -31,13 +31,13 @@ public class MovingToRecycleBinNotifications(
             return;
         }
 
-        foreach (var node in notification.MoveInfoCollection)
+        foreach (var node in notification.MoveInfoCollection.Select(x => x.Entity))
         {
-            if (!TypeAlias.Contains(node.Entity.ContentType.Alias))
+            if (!TypeAlias.Contains(node.ContentType.Alias))
             {
                 return;
             }
-            var savingNode = contentService.Content(node.Entity.Id);
+            var savingNode = contentService.Content(node.Id);
 
             if (savingNode == null)
             {
