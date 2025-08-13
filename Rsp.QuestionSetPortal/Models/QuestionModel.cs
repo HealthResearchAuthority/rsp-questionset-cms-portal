@@ -6,6 +6,7 @@ namespace Rsp.QuestionSetService.Models
     public class QuestionModel : BaseContentObject
     {
         public string? Name { get; set; }
+        public string? ShortName { get; set; }
 
         /// <summary>
         /// Manually created Id by the user

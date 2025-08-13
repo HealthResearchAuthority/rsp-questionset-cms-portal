@@ -4,8 +4,6 @@ using Rsp.QuestionSetService.Models.UIContent;
 using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Web.Common.PublishedModels;
-using Umbraco.Extensions;
-using uSync.Core;
 
 namespace Rsp.QuestionSetService.Helpers;
 
@@ -37,6 +35,7 @@ public static class ContentHelpers
                 {
                     questionModel.Answers = TransformAnswers(associatedQuestion);
                     questionModel.Name = associatedQuestion.QuestionName;
+                    questionModel.ShortName = associatedQuestion.ShortQuestionName;
                     questionModel.GuidanceComponents = associatedQuestion.GuidanceContent != null ? TransformUiComponent(associatedQuestion.GuidanceContent) : [];
                 }
 
