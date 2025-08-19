@@ -1,7 +1,8 @@
-﻿namespace Rsp.QuestionSetService.Models.Modifications;
+﻿using Rsp.QuestionSetPortal.Models.Modifications;
+
+namespace Rsp.QuestionSetService.Models.Modifications;
 
 public class StartingQuestionsModel
 {
-    public QuestionModel? AreaOfChange { get; set; }
-    public QuestionModel? SpecificChange { get; set; }
+    public List<AreaOfChangeModel>? AreasOfChange { get; set; } = [];
 }

@@ -80,5 +80,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("sectionName")]
 		public virtual string SectionName => this.Value<string>(_publishedValueFallback, "sectionName");
+
+		///<summary>
+		/// StaticViewName
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("staticViewName")]
+		public virtual string StaticViewName => this.Value<string>(_publishedValueFallback, "staticViewName");
 	}
 }

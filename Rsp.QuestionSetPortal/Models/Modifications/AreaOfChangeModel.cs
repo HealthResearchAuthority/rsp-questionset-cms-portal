@@ -1,0 +1,10 @@
+﻿using System.Text.Json.Serialization;
+using Rsp.QuestionSetService.Models;
+
+namespace Rsp.QuestionSetPortal.Models.Modifications;
+
+public class AreaOfChangeModel : AnswerModel
+{
+    [JsonPropertyOrder(int.MaxValue)]
+    public List<AnswerModel> SpecificAreasOfChange { get; set; } = [];
+}
