@@ -1,0 +1,181 @@
+name: $(Build.DefinitionName)_$(Build.SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
+
+pool:
+  name: "rsp-manageddevopspool"
+
+trigger:
+  - main
+
+parameters:
+  - name: env
+    displayName: Environment
+    type: string
+    default: dev
+    values:
+      - dev
+      - systemtest_manual
+      - systemtest_auto
+      - uat
+      - pre_prod
+      - production
+  - name: devops_library_branch
+    displayName: DevOps Library Branch
+    type: string
+    default: main
+  - name: servicedefaults_library_branch
+    displayName: Service Defaults Library Branch
+    type: string
+    default: main
+  - name: run_github_security_scan
+    displayName: Run GitHub Advanced Security Scan
+    type: boolean
+    default: false
+  - name: run_sonarcloud_analysis
+    displayName: Run Sonar Cloud Analysis
+    type: boolean
+    default: false
+  - name: skip_deployment
+    displayName: Skip Deployment
+    type: boolean
+    default: true
+  - name: browser
+    displayName: Select a Browser
+    type: string
+    default: chromium
+    values:
+      - chromium
+      - safari
+      - firefox
+  - name: tests_run_timeout
+    type: number
+    displayName: Automated Tests Run Timeout
+    default: 10
+
+variables:
+  - group: 'Test Automation'
+  - name: vstsFeed
+    value: "0e030eb0-cb72-4f42-b99a-26e6544271c3/0a3e0ad2-23b6-4e8b-ae12-cd6d01fe97e7"
+  - name: solution
+    value: "**/*.sln"
+  - name: project
+    value: "**/*.csproj"
+  - name: buildConfiguration
+    value: "Release"
+  - name: service_connection
+    ${{ if in(parameters.env, 'dev') }}:
+      value: "ARM Dev Connection New"
+    ${{ if in(parameters.env, 'systemtest_auto') }}:
+      value: "ARM Automated Test Connection"  
+    ${{ if in(parameters.env, 'systemtest_manual') }}:
+      value: "ARM Manual Test Connection"
+
+resources:
+  repositories:
+    - repository: library
+      type: github
+      name: 'HealthResearchAuthority/rsp-azure-devops-library'
+      endpoint: AzureDevOpsToGitHubConnection
+      ref: ${{ parameters.devops_library_branch }}
+    - repository: e2e_tests
+      type: github
+      name: 'HealthResearchAuthority/rsp-iras-qa'
+      endpoint: AzureDevOpsToGitHubConnection
+      ref: main
+    - repository: api_tests
+      type: github
+      name: 'HealthResearchAuthority/rsp-iras-api-tests'
+      endpoint: AzureDevOpsToGitHubConnection
+      ref: main
+    - repository: service_defaults
+      type: github
+      name: 'HealthResearchAuthority/rsp-service-defaults'
+      endpoint: AzureDevOpsToGitHubConnection
+      ref: ${{ parameters.servicedefaults_library_branch }}
+
+stages:
+  - stage: Build
+    displayName: "Build Stage"
+    condition: and(eq('${{ parameters.env }}', 'dev'), eq('${{ parameters.skip_deployment }}', 'true'))
+    jobs:
+      - template: jobs/build.yaml@library
+        parameters:
+          run_github_security_scan: ${{ parameters.run_github_security_scan }}
+          sonar_project_key: ''
+          sonar_project_name: ''
+          run_unit_tests: false
+          run_sonarcloud_analysis: ${{ parameters.run_sonarcloud_analysis }}
+          install_aspire: true
+          service_defaults_repo: service_defaults
+          
+  - stage: dev
+    displayName: "Deploy to Development"
+    variables: 
+      - group: 'DevelopmentEnvironment'
+    condition: and(eq('${{ parameters.env }}', 'dev'), eq('${{ parameters.skip_deployment }}', 'false'))
+    jobs:
+      - template: jobs/deployCMSPortal.yaml@library
+        parameters:
+          install_aspire: true
+          service_defaults_repo: service_defaults
+
+  - stage: systemtest_auto
+    displayName: "System Test (Auto)"
+    variables: 
+    - group: 'STAutoEnvironment'
+    condition: eq('${{ parameters.env }}', 'systemtest_auto')
+    jobs:
+      - template: jobs/deployCMSPortal.yaml@library
+        parameters:
+          install_aspire: true
+          service_defaults_repo: service_defaults
+
+      - ${{ if eq(variables.run_e2e_tests, true) }}:
+        - template: jobs/e2e_tests.yaml@library
+          parameters:
+            browser: ${{ parameters.browser }}
+            repo: e2e_tests
+            tests_run_timeout: ${{ parameters.tests_run_timeout }}
+      
+      - ${{ if eq(variables.run_api_tests, true) }}:
+        - template: jobs/api_tests.yaml@library
+          parameters:
+            repo: api_tests
+
+  - stage: systemtest_manual
+    displayName: "System Test (Manual)"
+    variables:
+    - group: 'STManualEnvironment'
+    condition: eq('${{ parameters.env }}', 'systemtest_manual') 
+    jobs:
+      - template: jobs/deployCMSPortal.yaml@library
+        parameters:
+          install_aspire: true
+          service_defaults_repo: service_defaults
+
+  - stage: system_integration_test
+    jobs:
+    - job:
+      steps:
+      - script: |
+          echo 'env: system integration test'
+
+  - stage: uat
+    jobs:
+    - job:
+      steps:
+      - script: |
+          echo 'env: uat'
+
+  - stage: pre_prod
+    jobs:
+    - job:
+      steps:
+      - script: |
+          echo 'env: pre prod'
+
+  - stage: production
+    jobs:
+    - job:
+      steps:
+      - script: |
+          echo 'env: production'

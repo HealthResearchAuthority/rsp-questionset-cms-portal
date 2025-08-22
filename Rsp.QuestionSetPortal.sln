@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rsp.QuestionSetPortal", "Rsp.QuestionSetPortal\Rsp.QuestionSetPortal.csproj", "{A5C8F05F-7953-47AC-9D49-EF1E31165545}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{660DFE31-647A-478F-A7BB-5F12621C60B3}"
+	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yaml = azure-pipelines.yaml
+		LICENSE = LICENSE
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
