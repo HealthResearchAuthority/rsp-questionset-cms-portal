@@ -1,4 +1,5 @@
 using Rsp.QuestionSetPortal.Notifications;
+using Swashbuckle.AspNetCore.Swagger;
 using Umbraco.Cms.Core.Notifications;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,13 @@ builder.CreateUmbracoBuilder()
     .AddNotificationHandler<ContentPublishingNotification, PublishingNotifications>()
     .AddNotificationHandler<ContentMovingToRecycleBinNotification, MovingToRecycleBinNotifications>()
     .Build();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.Configure<SwaggerOptions>(c =>
+{
+    c.RouteTemplate = "umbraco/swagger/{documentName}/swagger.json";
+});
 
 WebApplication app = builder.Build();
 
@@ -29,5 +37,15 @@ app.UseUmbraco()
         u.UseBackOfficeEndpoints();
         u.UseWebsiteEndpoints();
     });
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/umbraco/swagger/v1/swagger.json", "My API V1");
+        c.RoutePrefix = "umbraco/swagger";
+    });
+}
 
 await app.RunAsync();
