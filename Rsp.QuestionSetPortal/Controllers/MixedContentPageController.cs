@@ -6,7 +6,7 @@ using Umbraco.Cms.Web.Common.PublishedModels;
 namespace Rsp.QuestionSetPortal.Controllers;
 
 [ApiController]
-[Route("/umbraco/api/mixedcontentpage")]
+[Route("/umbraco/api/mixedContentPage")]
 public class MixedContentPageController : ControllerBase
 {
     private readonly IUmbracoContextAccessor _contentQuery;
@@ -16,9 +16,10 @@ public class MixedContentPageController : ControllerBase
         _contentQuery = contentQuery;
     }
 
-    [HttpGet("getcontentbyurl")]
+    [HttpGet("getByUrl")]
     public MixedContentPageModel? GetContent(string url)
     {
+        url = url.StartsWith('/') ? url : "/" + url;
         var model = new MixedContentPageModel();
 
         var tryContext = _contentQuery.TryGetUmbracoContext(out var umbC);

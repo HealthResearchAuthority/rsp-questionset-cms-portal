@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Rsp.QuestionSetPortal.Models.WebsiteContent;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.DeliveryApi;
-using Umbraco.Cms.Core.Models.DeliveryApi;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Rsp.QuestionSetPortal.Controllers;
@@ -11,25 +11,32 @@ namespace Rsp.QuestionSetPortal.Controllers;
 public class ContentSiteSettingsController : ControllerBase
 {
     private readonly IPublishedContentQuery _contentQuery;
-    private readonly IApiContentResponseBuilder _responseBuilder;
 
-    public ContentSiteSettingsController(IPublishedContentQuery contentQuery,
-        IApiContentResponseBuilder responseBuilder)
+    public ContentSiteSettingsController(IPublishedContentQuery contentQuery)
     {
         _contentQuery = contentQuery;
-        _responseBuilder = responseBuilder;
     }
 
-    [HttpGet("getsitesettings")]
-    public IApiContentResponse? GetSiteFotter()
+    [HttpGet("getSiteSettings")]
+    public SiteSettingsModel GetSiteFooterAndNavigation()
     {
-        var homeNode = _contentQuery.ContentAtRoot().FirstOrDefault(x => x.ContentType.Alias == Home.ModelTypeAlias);
+        var model = new SiteSettingsModel();
+
+        var homeNode = _contentQuery.ContentAtRoot().FirstOrDefault(x => x.ContentType.Alias == Home.ModelTypeAlias) as Home;
 
         if (homeNode != null)
         {
-            return _responseBuilder.Build(homeNode);
+            var footer = homeNode.FooterLinks?.Select(x =>
+               new Link
+               {
+                   Url = x.Url,
+                   Name = x.Name,
+                   Target = x.Target
+               });
+
+            model.FooterLinks = footer?.ToList();
         }
 
-        return null;
+        return model;
     }
 }
