@@ -21,46 +21,48 @@ public class GenericContentPageController : ControllerBase
     }
 
     [HttpGet("getByUrl")]
-    public IApiContentResponse? GetContent(string url)
+    [ProducesResponseType(typeof(IApiContentResponse), StatusCodes.Status200OK)]
+    public IActionResult GetContent(string url)
     {
         url = url.StartsWith('/') ? url : "/" + url;
         var tryContext = _contentQuery.TryGetUmbracoContext(out var umbC);
 
         if (!tryContext)
         {
-            return null;
+            return BadRequest("UmbracoContext could not be instantiated.");
         }
 
         var contentItem = umbC?.Content?.GetByRoute(url);
         if (contentItem == null)
         {
-            return null;
+            return NotFound();
         }
 
         var pageResponse = _responseBuilder.Build(contentItem);
 
-        return pageResponse;
+        return Ok(pageResponse);
     }
 
     [HttpGet("getHomeContent")]
-    public IApiContentResponse? GetHomeContent()
+    [ProducesResponseType(typeof(IApiContentResponse), StatusCodes.Status200OK)]
+    public IActionResult GetHomeContent()
     {
         var tryContext = _contentQuery.TryGetUmbracoContext(out var umbC);
 
         if (!tryContext)
         {
-            return null;
+            return BadRequest("UmbracoContext could not be instantiated.");
         }
 
         var contentItem = umbC?.Content?.GetAtRoot()?.FirstOrDefault(x => x.ContentType.Alias == Home.ModelTypeAlias)
             ;
         if (contentItem == null)
         {
-            return null;
+            return NotFound();
         }
 
         var pageResponse = _responseBuilder.Build(contentItem);
 
-        return pageResponse;
+        return Ok(pageResponse);
     }
 }

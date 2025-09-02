@@ -17,7 +17,8 @@ public class MixedContentPageController : ControllerBase
     }
 
     [HttpGet("getByUrl")]
-    public MixedContentPageModel? GetContent(string url)
+    [ProducesResponseType(typeof(MixedContentPageModel), StatusCodes.Status200OK)]
+    public IActionResult GetContent(string url)
     {
         url = url.StartsWith('/') ? url : "/" + url;
         var model = new MixedContentPageModel();
@@ -26,37 +27,35 @@ public class MixedContentPageController : ControllerBase
 
         if (!tryContext)
         {
-            return null;
+            return BadRequest("UmbracoContext could not be instantiated.");
         }
 
         MixedContentPage? contentItem = umbC?.Content?.GetByRoute(url) as MixedContentPage;
 
         if (contentItem == null)
         {
-            return null;
+            return NotFound();
         }
 
         var contentItems = contentItem.ContentItems;
 
-        if (contentItems == null)
+        if (contentItems != null)
         {
-            return null;
-        }
-
-        foreach (var placeholderItem in contentItems.Select(x => x.Content as MixedPagePlaceholderItem))
-        {
-            if (placeholderItem != null)
+            foreach (var placeholderItem in contentItems.Select(x => x.Content as MixedPagePlaceholderItem))
             {
-                var placeholderNode = placeholderItem.Placeholder;
-                var value = placeholderItem.Content;
-
-                if (placeholderNode != null)
+                if (placeholderItem != null)
                 {
-                    model.ContentItems.Add(placeholderNode.Name, value);
+                    var placeholderNode = placeholderItem.Placeholder;
+                    var value = placeholderItem.Content;
+
+                    if (placeholderNode != null)
+                    {
+                        model.ContentItems.Add(placeholderNode.Name, value);
+                    }
                 }
             }
         }
 
-        return model;
+        return Ok(model);
     }
 }
