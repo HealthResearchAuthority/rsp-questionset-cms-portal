@@ -217,7 +217,7 @@ namespace Rsp.QuestionSetService.Controllers
             return result;
         }
 
-        public QuestionSet? GetQuestionsetByVersion(string? version = null)
+        private QuestionSet? GetQuestionsetByVersion(string? version = null)
         {
             var questionsetRepo = _contentQuery.ContentAtRoot()?.FirstOrDefault()?.Descendant<QuestionsetRepository>();
             if (questionsetRepo != null)

@@ -1,6 +1,4 @@
-﻿using System;
-using Mapster;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Rsp.QuestionSetService.Helpers;
 using Rsp.QuestionSetService.Models;
 using Rsp.QuestionSetService.Models.Modifications;
@@ -259,7 +257,7 @@ namespace Rsp.QuestionSetService.Controllers
             return null;
         }
 
-        public ModificationsQuestionSet? GetQuestionsetByVersion(string? version = null)
+        private ModificationsQuestionSet? GetQuestionsetByVersion(string? version = null)
         {
             var questionsetRepo = _contentQuery.ContentAtRoot()?.FirstOrDefault()?.Descendant<ModificationsQuestionsetRepository>();
             if (questionsetRepo != null)
