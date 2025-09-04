@@ -217,9 +217,12 @@ public class ProjectRecordQuestionsetController : ControllerBase
         return result;
     }
 
-        private QuestionSet? GetQuestionsetByVersion(string? version = null)
+    private QuestionSet? GetQuestionsetByVersion(string? version = null)
     {
-        var questionsetRepo = _contentQuery.ContentAtRoot()?.FirstOrDefault()?.Descendant<QuestionsetRepository>();
+        var questionsetRepo = _contentQuery.ContentAtRoot()?
+            .FirstOrDefault(x => x.ContentType.Alias == Questionsets.ModelTypeAlias)?
+            .Descendant<QuestionsetRepository>();
+
         if (questionsetRepo != null)
         {
             if (string.IsNullOrEmpty(version))
