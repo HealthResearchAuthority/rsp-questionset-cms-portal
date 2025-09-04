@@ -1,7 +1,6 @@
-﻿namespace Rsp.QuestionSetService.Models.UIContent
+﻿namespace Rsp.QuestionSetPortal.Models.UIContent;
+
+public class BodyTextComponentModel : ContentComponent
 {
-    public class BodyTextComponentModel : ContentComponent
-    {
-        public string? Value { get; set; }
-    }
+    public string? Value { get; set; }
 }

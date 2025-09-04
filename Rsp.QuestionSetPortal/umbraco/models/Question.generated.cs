@@ -104,5 +104,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("shortQuestionName")]
 		public virtual string ShortQuestionName => this.Value<string>(_publishedValueFallback, "shortQuestionName");
+
+		///<summary>
+		/// Supplementary Info
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("supplementaryInfo")]
+		public virtual string SupplementaryInfo => this.Value<string>(_publishedValueFallback, "supplementaryInfo");
 	}
 }

@@ -1,290 +1,309 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Rsp.QuestionSetService.Helpers;
-using Rsp.QuestionSetService.Models;
-using Rsp.QuestionSetService.Models.Modifications;
+using Rsp.QuestionSetPortal.Helpers;
+using Rsp.QuestionSetPortal.Models;
+using Rsp.QuestionSetPortal.Models.Modifications;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Web.Common.PublishedModels;
 
-namespace Rsp.QuestionSetService.Controllers
+namespace Rsp.QuestionSetPortal.Controllers;
+
+[ApiController]
+[Route("/umbraco/api/modificationsquestionset")]
+public class ModificationsQuestionsetController : ControllerBase
 {
-    [ApiController]
-    [Route("/umbraco/api/modificationsquestionset")]
-    public class ModificationsQuestionsetController : ControllerBase
+    private readonly IPublishedContentQuery _contentQuery;
+
+    public ModificationsQuestionsetController(IPublishedContentQuery contentQuery)
     {
-        private readonly IPublishedContentQuery _contentQuery;
+        _contentQuery = contentQuery;
+    }
 
-        public ModificationsQuestionsetController(IPublishedContentQuery contentQuery)
+    [HttpGet("GetQuestionSet")]
+    public QuestionSetModel GetQuestionSet(string? sectionId = null, string? questionSetId = null, string? version = null)
+    {
+        var result = new QuestionSetModel();
+
+        if (!string.IsNullOrEmpty(sectionId))
         {
-            _contentQuery = contentQuery;
-        }
+            var activeQuestionSet = GetQuestionsetByVersion(version);
 
-        [HttpGet("GetQuestionSet")]
-        public QuestionSetModel GetQuestionSet(string? sectionId = null, string? questionSetId = null, string? version = null)
-        {
-            var result = new QuestionSetModel();
+            var section = activeQuestionSet?
+                .Descendants<Section>()
+                .FirstOrDefault
+                (
+                    section =>
+                        section.SectionId?.Equals(sectionId, StringComparison.InvariantCultureIgnoreCase) == true
+                );
 
-            if (!string.IsNullOrEmpty(sectionId))
+            if (activeQuestionSet == null || section == null)
             {
+                return result;
+            }
+
+            ContentHelpers.PopulateGeneralQuestionSetMetadata(result, activeQuestionSet);
+
+            var sectionModel = ContentHelpers.PopulateSectionModel(section);
+
+            sectionModel.Questions = ContentHelpers.TransformQuestions(section, result.Version);
+
+            result.Sections.Add(sectionModel);
+        }
+        else
+        {
+            if (string.IsNullOrEmpty(questionSetId))
+            {
+                // no id passed so go ahead and get the active questionset
                 var activeQuestionSet = GetQuestionsetByVersion(version);
 
-                var section = activeQuestionSet?.Descendants<Section>().FirstOrDefault(x => x.SectionId != null &&
-                    x.SectionId.Equals(sectionId, StringComparison.InvariantCultureIgnoreCase));
-
-                if (activeQuestionSet == null || section == null)
+                if (activeQuestionSet != null)
                 {
-                    return result;
-                }
+                    questionSetId = activeQuestionSet.Key.ToString();
 
-                ContentHelpers.PopulateGeneralQuestionSetMetadata(result, activeQuestionSet);
-
-                var sectionModel = ContentHelpers.PopulateSectionModel(section);
-
-                sectionModel.Questions = ContentHelpers.TransformQuestions(section, result.Version);
-
-                result.Sections.Add(sectionModel);
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(questionSetId))
-                {
-                    // no id passed so go ahead and get the active questionset
-                    var activeQuestionSet = GetQuestionsetByVersion(version);
-
-                    if (activeQuestionSet != null)
-                    {
-                        questionSetId = activeQuestionSet.Key.ToString();
-
-                        ContentHelpers.PopulateGeneralQuestionSetMetadata(result, activeQuestionSet);
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(questionSetId))
-                {
-                    var questionSet = _contentQuery.Content(questionSetId) as ModificationsQuestionSet;
-
-                    ContentHelpers.PopulateGeneralQuestionSetMetadata(result, questionSet);
-
-                    var sections = questionSet?.Descendants<Section>();
-
-                    if (sections != null)
-                    {
-                        foreach (var section in sections)
-                        {
-                            var sectionModel = ContentHelpers.PopulateSectionModel(section);
-
-                            sectionModel.Questions = ContentHelpers.TransformQuestions(section, result.Version);
-
-                            result.Sections.Add(sectionModel);
-                        }
-                    }
+                    ContentHelpers.PopulateGeneralQuestionSetMetadata(result, activeQuestionSet);
                 }
             }
 
-            return result;
-        }
-
-        [HttpGet("GetStartingQuestions")]
-        public StartingQuestionsModel GetStartingQuestions(string? version = null)
-        {
-            var result = new StartingQuestionsModel();
-            var activeQuestionSet = GetQuestionsetByVersion(version);
-
-            if (activeQuestionSet != null)
+            if (!string.IsNullOrEmpty(questionSetId))
             {
-                var questionSetNode = _contentQuery.Content(activeQuestionSet.Key);
+                var questionSet = _contentQuery.Content(questionSetId) as ModificationsQuestionSet;
 
-                if (questionSetNode != null)
+                ContentHelpers.PopulateGeneralQuestionSetMetadata(result, questionSet);
+
+                var sections = questionSet?.Descendants<Section>();
+
+                if (sections != null)
                 {
-                    var areaOfChange = questionSetNode.FirstChild<AreaOfChangeQuestion>();
-                    var specificChange = questionSetNode.FirstChild<SpecificChangeQuestion>();
-
-                    if (areaOfChange != null)
+                    foreach (var section in sections)
                     {
-                        var answerOptions = areaOfChange.Children<AnswerOption>();
-                        result.AreaOfChange = new QuestionModel
-                        {
-                            Id = areaOfChange.Key.ToString(),
-                            Name = areaOfChange.Text,
-                            Answers = answerOptions != null ? answerOptions.Select(x => new AnswerModel
-                            {
-                                AutoGeneratedId = x.Key.ToString(),
-                                Id = x.OptionId,
-                                OptionName = x.OptionName
-                            }).ToList() : []
-                        };
-                    }
+                        var sectionModel = ContentHelpers.PopulateSectionModel(section);
 
-                    if (specificChange != null)
-                    {
-                        var answerOptions = specificChange.Children<AnswerOption>();
-                        result.SpecificChange = new QuestionModel
-                        {
-                            Id = specificChange.Key.ToString(),
-                            Name = specificChange.Text,
-                            Answers = answerOptions != null ? answerOptions.Select(x => new AnswerModel
-                            {
-                                AutoGeneratedId = x.Key.ToString(),
-                                Id = x.OptionId,
-                                OptionName = x.OptionName
-                            }).ToList() : []
-                        };
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        [HttpGet("GetModificationsJourney")]
-        public QuestionSetModel GetModificationsJourney(string specificChangeId, string? version = null)
-        {
-            var result = new QuestionSetModel();
-
-            var activeQuestionSet = GetQuestionsetByVersion(version);
-            if (activeQuestionSet != null)
-            {
-                ContentHelpers.PopulateGeneralQuestionSetMetadata(result, activeQuestionSet);
-                var journeys = activeQuestionSet.Children<ModificationJourney>();
-                var activeJourney = journeys?.FirstOrDefault(x => x.Condition != null && x.Condition.Any(x => x.Key.ToString() == specificChangeId));
-
-                if (activeJourney != null)
-                {
-                    foreach (var section in activeJourney.Children<Section>())
-                    {
-                        var sectionModel = new SectionModel
-                        {
-                            SectionName = section.SectionName,
-                            Id = section.SectionId,
-                            AutoGeneratedId = section.Key.ToString(),
-                            GuidanceComponents = section.GuidanceContent != null ? ContentHelpers.TransformUiComponent(section.GuidanceContent) : []
-                        };
-
-                        sectionModel.Questions = ContentHelpers.TransformQuestions(section, version);
+                        sectionModel.Questions = ContentHelpers.TransformQuestions(section, result.Version);
 
                         result.Sections.Add(sectionModel);
                     }
                 }
             }
+        }
+
+        return result;
+    }
+
+    [HttpGet("GetStartingQuestions")]
+    public StartingQuestionsModel GetStartingQuestions(string? version = null)
+    {
+        var result = new StartingQuestionsModel();
+        var activeQuestionSet = GetQuestionsetByVersion(version);
+
+        if (activeQuestionSet != null)
+        {
+            var questionSetNode = _contentQuery.Content(activeQuestionSet.Key);
+
+            if (questionSetNode != null)
+            {
+                var areaOfChange = questionSetNode.FirstChild<AreaOfChangeQuestion>();
+
+                if (areaOfChange != null)
+                {
+                    var answerOptions = areaOfChange.Children<AnswerOption>();
+
+                    result.AreasOfChange = answerOptions.Select(option => new AreaOfChangeModel()
+                    {
+                        AutoGeneratedId = option.Key.ToString(),
+                        Id = option.OptionId,
+                        OptionName = option.OptionName,
+                        SpecificAreasOfChange = option.Children<SubAnswerOption>().Select(suboption => new AnswerModel
+                        {
+                            AutoGeneratedId = suboption.Key.ToString(),
+                            Id = suboption.OptionId,
+                            OptionName = suboption.OptionName
+                        }).ToList()
+                    }).ToList();
+                }
+
+                //if (specificChange != null)
+                //{
+                //    var answerOptions = specificChange.Children<AnswerOption>();
+                //    result.SpecificChange = new QuestionModel
+                //    {
+                //        Id = specificChange.Key.ToString(),
+                //        Name = specificChange.Text,
+                //        Answers = answerOptions != null ? answerOptions.Select(x => new AnswerModel
+                //        {
+                //            AutoGeneratedId = x.Key.ToString(),
+                //            Id = x.OptionId,
+                //            OptionName = x.OptionName
+                //        }).ToList() : []
+                //    };
+                //}
+            }
+        }
+
+        return result;
+    }
+
+    [HttpGet("GetModificationsJourney")]
+    public QuestionSetModel GetModificationsJourney(string specificChangeId, string? version = null)
+    {
+        var result = new QuestionSetModel();
+
+        var activeQuestionSet = GetQuestionsetByVersion(version);
+        if (activeQuestionSet == null)
+        {
             return result;
         }
 
-        [HttpGet("GetNextQuestionSection")]
-        public QuestionSectionResponse? GetNextQuestionSection(string currentSectionId, string? version = null)
+        ContentHelpers.PopulateGeneralQuestionSetMetadata(result, activeQuestionSet);
+        var journeys = activeQuestionSet.Children<ModificationJourney>();
+        var activeJourney = journeys?.FirstOrDefault(x => x.Condition?.Any(x => x.Key.ToString() == specificChangeId) == true);
+
+        var children = activeJourney?.Children<Section>();
+
+        if (children is null)
         {
-            if (string.IsNullOrEmpty(currentSectionId))
+            return result;
+        }
+
+        foreach (var section in children)
+        {
+            var sectionModel = new SectionModel
             {
-                return null;
-            }
+                SectionName = section.SectionName,
+                Id = section.SectionId,
+                CategoryId = section.Category?.Name,
+                AutoGeneratedId = section.Key.ToString(),
+                GuidanceComponents = section.GuidanceContent != null ? ContentHelpers.TransformUiComponent(section.GuidanceContent) : [],
+                Questions = ContentHelpers.TransformQuestions(section, version),
+                StaticViewName = section.StaticViewName,
+                IsMandatory = section.Mandatory
+            };
 
-            var questionset = GetQuestionsetByVersion(version);
-            var currentSection = questionset?
-               .Descendants<Section>()
-               .FirstOrDefault(x =>
-                   !string.IsNullOrEmpty(x.SectionId) &&
-                    x.SectionId
-                   .Equals(currentSectionId, StringComparison.InvariantCultureIgnoreCase)
-               );
+            result.Sections.Add(sectionModel);
+        }
 
-            if (currentSection != null)
-            {
-                var allSections = currentSection.Parent<ModificationsQuestionSet>()?.Children<Section>();
+        return result;
+    }
 
-                if (allSections != null)
-                {
-                    var currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
-                    if (allSections.ElementAtOrDefault(currentSectionIndex + 1) != null)
-                    {
-                        var nextSection = allSections.ElementAtOrDefault(currentSectionIndex + 1);
-                        var nextSectionCategory = nextSection?.Category as Category;
-
-                        var sectionModel = new QuestionSectionResponse
-                        {
-                            SectionId = nextSection?.SectionId,
-                            SectionName = nextSection?.SectionName.ToString(),
-                            QuestionCategoryId = nextSectionCategory?.CategoryId
-                        };
-
-                        return sectionModel;
-                    }
-                }
-            }
-
+    [HttpGet("GetNextQuestionSection")]
+    public QuestionSectionResponse? GetNextQuestionSection(string currentSectionId, string? version = null)
+    {
+        if (string.IsNullOrEmpty(currentSectionId))
+        {
             return null;
         }
 
-        [HttpGet("GetPreviousQuestionSection")]
-        public QuestionSectionResponse? GetPreviousQuestionSection(string currentSectionId, string? version = null)
+        var questionset = GetQuestionsetByVersion(version);
+
+        var currentSection = questionset?
+           .Descendants<Section>()
+           .FirstOrDefault
+           (
+               section =>
+                   !string.IsNullOrEmpty(section.SectionId) &&
+                    section.SectionId.Equals(currentSectionId, StringComparison.InvariantCultureIgnoreCase)
+           );
+
+        if (currentSection is null ||
+            currentSection.Parent<ModificationJourney>()?.Children<Section>() is not IEnumerable<Section> allSections)
         {
-            if (string.IsNullOrEmpty(currentSectionId))
-            {
-                return null;
-            }
-
-            var questionset = GetQuestionsetByVersion(version);
-            var currentSection = questionset?
-               .Descendants<Section>()
-               .FirstOrDefault(x =>
-                   !string.IsNullOrEmpty(x.SectionId) &&
-                    x.SectionId
-                   .Equals(currentSectionId, StringComparison.InvariantCultureIgnoreCase)
-               );
-
-            if (currentSection != null)
-            {
-                var allSections = currentSection.Parent<QuestionSet>()?.Children<Section>();
-
-                if (allSections != null)
-                {
-                    var currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
-                    if (allSections.ElementAtOrDefault(currentSectionIndex - 1) != null)
-                    {
-                        var prevSection = allSections.ElementAtOrDefault(currentSectionIndex - 1);
-                        var prevSectionCategory = prevSection?.Category as Category;
-
-                        var sectionModel = new QuestionSectionResponse
-                        {
-                            SectionId = prevSection?.SectionId,
-                            SectionName = prevSection?.SectionName.ToString(),
-                            QuestionCategoryId = prevSectionCategory?.CategoryId,
-                        };
-
-                        return sectionModel;
-                    }
-                }
-            }
-
             return null;
         }
+
+        var currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
+
+        if (allSections.ElementAtOrDefault(currentSectionIndex + 1) != null)
+        {
+            var nextSection = allSections.ElementAtOrDefault(currentSectionIndex + 1);
+            var nextSectionCategory = nextSection?.Category as Category;
+
+            return new QuestionSectionResponse
+            {
+                SectionId = nextSection?.SectionId,
+                SectionName = nextSection?.SectionName?.ToString(),
+                QuestionCategoryId = nextSectionCategory?.CategoryId,
+                StaticViewName = nextSection?.StaticViewName,
+                IsMandatory = nextSection?.Mandatory ?? false
+            };
+        }
+
+        return null;
+    }
+
+    [HttpGet("GetPreviousQuestionSection")]
+    public QuestionSectionResponse? GetPreviousQuestionSection(string currentSectionId, string? version = null)
+    {
+        if (string.IsNullOrEmpty(currentSectionId))
+        {
+            return null;
+        }
+
+        var questionset = GetQuestionsetByVersion(version);
+
+        var currentSection = questionset?
+           .Descendants<Section>()
+           .FirstOrDefault(x =>
+               !string.IsNullOrEmpty(x.SectionId) &&
+                x.SectionId
+               .Equals(currentSectionId, StringComparison.InvariantCultureIgnoreCase)
+           );
+
+        if (currentSection != null)
+        {
+            var allSections = currentSection.Parent<ModificationJourney>()?.Children<Section>();
+
+            if (allSections != null)
+            {
+                var currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
+
+                if (allSections.ElementAtOrDefault(currentSectionIndex - 1) != null)
+                {
+                    var prevSection = allSections.ElementAtOrDefault(currentSectionIndex - 1);
+                    var prevSectionCategory = prevSection?.Category as Category;
+
+                    var sectionModel = new QuestionSectionResponse
+                    {
+                        SectionId = prevSection?.SectionId,
+                        SectionName = prevSection?.SectionName?.ToString(),
+                        QuestionCategoryId = prevSectionCategory?.CategoryId,
+                        StaticViewName = prevSection?.StaticViewName,
+                        IsMandatory = prevSection?.Mandatory ?? false
+                    };
+
+                    return sectionModel;
+                }
+            }
+        }
+
+        return null;
+    }
 
         private ModificationsQuestionSet? GetQuestionsetByVersion(string? version = null)
+    {
+        var questionsetRepo = _contentQuery.ContentAtRoot()?.FirstOrDefault()?.Descendant<ModificationsQuestionsetRepository>();
+        if (questionsetRepo != null)
         {
-            var questionsetRepo = _contentQuery.ContentAtRoot()?.FirstOrDefault()?.Descendant<ModificationsQuestionsetRepository>();
-            if (questionsetRepo != null)
+            if (string.IsNullOrEmpty(version))
             {
-                if (string.IsNullOrEmpty(version))
-                {
-                    // get active questionset because version is not specified
-                    var activeQuestionSet = questionsetRepo.Value<IPublishedContent>("activeQuestionset") as ModificationsQuestionSet;
-                    return activeQuestionSet;
-                }
-                else
-                {
-                    // version is specified so get questionset by version
-                    var questionset = questionsetRepo
-                        .Children<ModificationsQuestionSet>()?
-                        .FirstOrDefault(x =>
-                            x.VersionNumber
-                            .ToString()
-                            .Equals(version, StringComparison.InvariantCultureIgnoreCase)
-                        );
-
-                    return questionset;
-                }
+                // get active questionset because version is not specified
+                var activeQuestionSet = questionsetRepo.Value<IPublishedContent>("activeQuestionset") as ModificationsQuestionSet;
+                return activeQuestionSet;
             }
+            else
+            {
+                // version is specified so get questionset by version
+                var questionset = questionsetRepo
+                    .Children<ModificationsQuestionSet>()?
+                    .FirstOrDefault(x =>
+                        x.VersionNumber
+                        .ToString()
+                        .Equals(version, StringComparison.InvariantCultureIgnoreCase)
+                    );
 
-            // questionset repository does not exist
-            return null;
+                return questionset;
+            }
         }
+
+        // questionset repository does not exist
+        return null;
     }
 }
