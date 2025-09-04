@@ -1,6 +1,4 @@
-﻿using Rsp.QuestionSetPortal.Models.Modifications;
-
-namespace Rsp.QuestionSetService.Models.Modifications;
+﻿namespace Rsp.QuestionSetPortal.Models.Modifications;
 
 public class StartingQuestionsModel
 {

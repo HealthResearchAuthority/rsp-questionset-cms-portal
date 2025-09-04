@@ -1,11 +1,10 @@
-﻿namespace Rsp.QuestionSetService.Models
+﻿namespace Rsp.QuestionSetPortal.Models;
+
+public class RuleModel
 {
-    public class RuleModel
-    {
-        public IList<ConditionModel> Conditions { get; set; } = [];
-        public string? Description { get; set; }
-        public string Mode { get; set; } = null!;
-        public QuestionModel? ParentQuestion { get; set; }
-        public string? QuestionId { get; set; }
-    }
+    public IList<ConditionModel> Conditions { get; set; } = [];
+    public string? Description { get; set; }
+    public string Mode { get; set; } = null!;
+    public QuestionModel? ParentQuestion { get; set; }
+    public string? QuestionId { get; set; }
 }
