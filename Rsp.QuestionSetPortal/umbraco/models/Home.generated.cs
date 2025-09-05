@@ -58,11 +58,27 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.Link> FooterLinks => this.Value<global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.Link>>(_publishedValueFallback, "footerLinks");
 
 		///<summary>
-		/// Login landing page body text
+		/// Login landing page above the fold
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("loginLandingPageBodyText")]
-		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel LoginLandingPageBodyText => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockListModel>(_publishedValueFallback, "loginLandingPageBodyText");
+		[ImplementPropertyType("loginLandingPageAboveTheFold")]
+		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel LoginLandingPageAboveTheFold => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockListModel>(_publishedValueFallback, "loginLandingPageAboveTheFold");
+
+		///<summary>
+		/// Login landing page below the fold
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("loginLandingPageBelowTheFold")]
+		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel LoginLandingPageBelowTheFold => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockListModel>(_publishedValueFallback, "loginLandingPageBelowTheFold");
+
+		///<summary>
+		/// Right side menu links
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("rightSideMenuLinks")]
+		public virtual global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.Link> RightSideMenuLinks => this.Value<global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.Link>>(_publishedValueFallback, "rightSideMenuLinks");
 	}
 }
