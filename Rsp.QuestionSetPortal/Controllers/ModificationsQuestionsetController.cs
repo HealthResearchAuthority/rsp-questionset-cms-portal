@@ -277,9 +277,12 @@ public class ModificationsQuestionsetController : ControllerBase
         return null;
     }
 
-        private ModificationsQuestionSet? GetQuestionsetByVersion(string? version = null)
+    private ModificationsQuestionSet? GetQuestionsetByVersion(string? version = null)
     {
-        var questionsetRepo = _contentQuery.ContentAtRoot()?.FirstOrDefault()?.Descendant<ModificationsQuestionsetRepository>();
+        var questionsetRepo = _contentQuery.ContentAtRoot()?
+            .FirstOrDefault(x => x.ContentType.Alias == Questionsets.ModelTypeAlias)?
+            .Descendant<ModificationsQuestionsetRepository>();
+
         if (questionsetRepo != null)
         {
             if (string.IsNullOrEmpty(version))
