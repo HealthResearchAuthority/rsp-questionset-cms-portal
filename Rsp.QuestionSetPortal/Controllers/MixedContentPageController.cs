@@ -43,14 +43,21 @@ public class MixedContentPageController : ControllerBase
         {
             foreach (var placeholderItem in contentItems.Select(x => x.Content as MixedPagePlaceholderItem))
             {
-                if (placeholderItem != null)
+                if (placeholderItem?.Placeholder != null)
                 {
                     var placeholderNode = placeholderItem.Placeholder;
-                    var value = placeholderItem.Content;
+                    var value = placeholderItem?.Content?.FirstOrDefault();
 
-                    if (placeholderNode != null)
-                    {
-                        model.ContentItems.Add(placeholderNode.Name, value);
+                    if (value != null)
+                    {                        
+                        var valueType = value.Content.ContentType.Alias;
+                        var placeholderValue = value.Content.Value<string>("value");
+                        
+                        model.ContentItems.Add(placeholderNode.Name, new MixedContentPageItem
+                        {
+                            Value = placeholderValue,
+                            ValueType = valueType
+                        });
                     }
                 }
             }
