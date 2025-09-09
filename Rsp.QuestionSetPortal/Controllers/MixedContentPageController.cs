@@ -49,11 +49,11 @@ public class MixedContentPageController : ControllerBase
                     var value = placeholderItem?.Content?.FirstOrDefault();
 
                     if (value != null)
-                    {                        
+                    {
                         var valueType = value.Content.ContentType.Alias;
                         var placeholderValue = value.Content.Value<string>("value");
-                        
-                        model.ContentItems.Add(placeholderNode.Name, new MixedContentPageItem
+
+                        model.ContentItems.TryAdd(placeholderNode.Name, new MixedContentPageItem
                         {
                             Value = placeholderValue,
                             ValueType = valueType
