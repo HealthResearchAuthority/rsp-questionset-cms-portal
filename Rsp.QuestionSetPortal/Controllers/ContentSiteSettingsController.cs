@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Rsp.QuestionSetPortal.Models.WebsiteContent;
-using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Rsp.QuestionSetPortal.Controllers;
@@ -10,19 +10,27 @@ namespace Rsp.QuestionSetPortal.Controllers;
 [Route("/umbraco/api/siteSettings")]
 public class ContentSiteSettingsController : ControllerBase
 {
-    private readonly IPublishedContentQuery _contentQuery;
+    private readonly IUmbracoContextAccessor _contentQuery;
 
-    public ContentSiteSettingsController(IPublishedContentQuery contentQuery)
+    public ContentSiteSettingsController(IUmbracoContextAccessor contentQuery)
     {
         _contentQuery = contentQuery;
     }
 
     [HttpGet("getSiteSettings")]
-    public SiteSettingsModel GetSiteFooterAndNavigation()
+    [ProducesResponseType(typeof(SiteSettingsModel), StatusCodes.Status200OK)]
+    public IActionResult GetSiteFooterAndNavigation(bool preview = false)
     {
         var model = new SiteSettingsModel();
 
-        var homeNode = _contentQuery.ContentAtRoot().FirstOrDefault(x => x.ContentType.Alias == Home.ModelTypeAlias) as Home;
+        var tryContext = _contentQuery.TryGetUmbracoContext(out var umbC);
+
+        if (!tryContext)
+        {
+            return BadRequest("UmbracoContext could not be instantiated.");
+        }
+
+        var homeNode = umbC?.Content?.GetAtRoot(preview: preview)?.FirstOrDefault(x => x.ContentType.Alias == Home.ModelTypeAlias) as Home;
 
         if (homeNode != null)
         {
@@ -37,6 +45,6 @@ public class ContentSiteSettingsController : ControllerBase
             model.FooterLinks = footer?.ToList();
         }
 
-        return model;
+        return Ok(model);
     }
 }

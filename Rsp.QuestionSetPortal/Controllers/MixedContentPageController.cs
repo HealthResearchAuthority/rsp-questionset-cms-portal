@@ -18,7 +18,7 @@ public class MixedContentPageController : ControllerBase
 
     [HttpGet("getByUrl")]
     [ProducesResponseType(typeof(MixedContentPageModel), StatusCodes.Status200OK)]
-    public IActionResult GetContent(string url)
+    public IActionResult GetContent(string url, bool preview = false)
     {
         url = url.StartsWith('/') ? url : "/" + url;
         var model = new MixedContentPageModel();
@@ -30,7 +30,7 @@ public class MixedContentPageController : ControllerBase
             return BadRequest("UmbracoContext could not be instantiated.");
         }
 
-        MixedContentPage? contentItem = umbC?.Content?.GetByRoute(url) as MixedContentPage;
+        MixedContentPage? contentItem = umbC?.Content?.GetByRoute(preview: preview, url) as MixedContentPage;
 
         if (contentItem == null)
         {
@@ -43,14 +43,21 @@ public class MixedContentPageController : ControllerBase
         {
             foreach (var placeholderItem in contentItems.Select(x => x.Content as MixedPagePlaceholderItem))
             {
-                if (placeholderItem != null)
+                if (placeholderItem?.Placeholder != null)
                 {
                     var placeholderNode = placeholderItem.Placeholder;
-                    var value = placeholderItem.Content;
+                    var value = placeholderItem?.Content?.FirstOrDefault();
 
-                    if (placeholderNode != null)
+                    if (value != null)
                     {
-                        model.ContentItems.Add(placeholderNode.Name, value);
+                        var valueType = value.Content.ContentType.Alias;
+                        var placeholderValue = value.Content.Value<string>("value");
+
+                        model.ContentItems.TryAdd(placeholderNode.Name, new MixedContentPageItem
+                        {
+                            Value = placeholderValue,
+                            ValueType = valueType
+                        });
                     }
                 }
             }

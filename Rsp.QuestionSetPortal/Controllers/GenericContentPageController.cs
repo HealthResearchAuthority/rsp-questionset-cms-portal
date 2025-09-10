@@ -22,7 +22,7 @@ public class GenericContentPageController : ControllerBase
 
     [HttpGet("getByUrl")]
     [ProducesResponseType(typeof(IApiContentResponse), StatusCodes.Status200OK)]
-    public IActionResult GetContent(string url)
+    public IActionResult GetContent(string url, bool preview = false)
     {
         url = url.StartsWith('/') ? url : "/" + url;
         var tryContext = _contentQuery.TryGetUmbracoContext(out var umbC);
@@ -32,7 +32,7 @@ public class GenericContentPageController : ControllerBase
             return BadRequest("UmbracoContext could not be instantiated.");
         }
 
-        var contentItem = umbC?.Content?.GetByRoute(url);
+        var contentItem = umbC?.Content?.GetByRoute(preview: preview, url);
         if (contentItem == null)
         {
             return NotFound();
@@ -45,7 +45,7 @@ public class GenericContentPageController : ControllerBase
 
     [HttpGet("getHomeContent")]
     [ProducesResponseType(typeof(IApiContentResponse), StatusCodes.Status200OK)]
-    public IActionResult GetHomeContent()
+    public IActionResult GetHomeContent(bool preview = false)
     {
         var tryContext = _contentQuery.TryGetUmbracoContext(out var umbC);
 
@@ -54,8 +54,7 @@ public class GenericContentPageController : ControllerBase
             return BadRequest("UmbracoContext could not be instantiated.");
         }
 
-        var contentItem = umbC?.Content?.GetAtRoot()?.FirstOrDefault(x => x.ContentType.Alias == Home.ModelTypeAlias)
-            ;
+        var contentItem = umbC?.Content?.GetAtRoot(preview: preview)?.FirstOrDefault(x => x.ContentType.Alias == Home.ModelTypeAlias);
         if (contentItem == null)
         {
             return NotFound();
