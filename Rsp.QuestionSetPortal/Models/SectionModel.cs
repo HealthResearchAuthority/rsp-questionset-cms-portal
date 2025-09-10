@@ -17,6 +17,8 @@ public class SectionModel : BaseContentObject
 
     public bool IsMandatory { get; set; }
 
+    public int Sequence { get; set; }
+
     /// <summary>
     /// Contains the questions in this section
     /// </summary>

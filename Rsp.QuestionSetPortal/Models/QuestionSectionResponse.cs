@@ -7,4 +7,5 @@ public class QuestionSectionResponse
     public string? SectionName { get; set; }
     public string? StaticViewName { get; set; }
     public bool IsMandatory { get; set; }
+    public int Sequence { get; set; }
 }

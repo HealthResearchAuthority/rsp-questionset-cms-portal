@@ -17,6 +17,9 @@ public class QuestionModel : BaseContentObject
     public string? QuestionFormat { get; set; }
     public string? AnswerDataType { get; set; }
     public string? CategoryId { get; set; }
+    public bool ShowOriginalAnswer { get; set; }
+    public int Sequence { get; set; }
+    public int SectionSequence { get; set; }
 
     /// <summary>
     /// Represents the version of the questionset

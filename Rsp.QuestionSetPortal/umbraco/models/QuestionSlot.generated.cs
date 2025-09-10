@@ -74,6 +74,20 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string QuestionId => this.Value<string>(_publishedValueFallback, "questionId");
 
 		///<summary>
+		/// Sequence: Indicates the position of question within the section
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("sequence")]
+		public virtual int Sequence => this.Value<int>(_publishedValueFallback, "sequence");
+
+		///<summary>
+		/// ShowOriginalAnswer: Displays the original answer submitted with initial application
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("showOriginalAnswer")]
+		public virtual bool ShowOriginalAnswer => this.Value<bool>(_publishedValueFallback, "showOriginalAnswer");
+
+		///<summary>
 		/// Conformance
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
