@@ -18,7 +18,7 @@ public class MixedContentPageController : ControllerBase
 
     [HttpGet("getByUrl")]
     [ProducesResponseType(typeof(MixedContentPageModel), StatusCodes.Status200OK)]
-    public IActionResult GetContent(string url)
+    public IActionResult GetContent(string url, bool preview = false)
     {
         url = url.StartsWith('/') ? url : "/" + url;
         var model = new MixedContentPageModel();
@@ -30,7 +30,7 @@ public class MixedContentPageController : ControllerBase
             return BadRequest("UmbracoContext could not be instantiated.");
         }
 
-        MixedContentPage? contentItem = umbC?.Content?.GetByRoute(url) as MixedContentPage;
+        MixedContentPage? contentItem = umbC?.Content?.GetByRoute(preview: preview, url) as MixedContentPage;
 
         if (contentItem == null)
         {
