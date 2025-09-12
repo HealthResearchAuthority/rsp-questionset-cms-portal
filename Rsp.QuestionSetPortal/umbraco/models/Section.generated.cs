@@ -89,6 +89,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string SectionName => this.Value<string>(_publishedValueFallback, "sectionName");
 
 		///<summary>
+		/// Sequence: Position of the section
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("sequence")]
+		public virtual int Sequence => this.Value<int>(_publishedValueFallback, "sequence");
+
+		///<summary>
 		/// StaticViewName
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]

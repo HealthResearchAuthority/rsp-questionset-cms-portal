@@ -175,7 +175,8 @@ public class ModificationsQuestionsetController : ControllerBase
                 GuidanceComponents = section.GuidanceContent != null ? ContentHelpers.TransformUiComponent(section.GuidanceContent) : [],
                 Questions = ContentHelpers.TransformQuestions(section, version),
                 StaticViewName = section.StaticViewName,
-                IsMandatory = section.Mandatory
+                IsMandatory = section.Mandatory,
+                Sequence = section.Sequence,
             };
 
             result.Sections.Add(sectionModel);
@@ -222,7 +223,8 @@ public class ModificationsQuestionsetController : ControllerBase
                 SectionName = nextSection?.SectionName?.ToString(),
                 QuestionCategoryId = nextSectionCategory?.CategoryId,
                 StaticViewName = nextSection?.StaticViewName,
-                IsMandatory = nextSection?.Mandatory ?? false
+                IsMandatory = nextSection?.Mandatory ?? false,
+                Sequence = nextSection?.Sequence ?? 0,
             };
         }
 
@@ -266,7 +268,8 @@ public class ModificationsQuestionsetController : ControllerBase
                         SectionName = prevSection?.SectionName?.ToString(),
                         QuestionCategoryId = prevSectionCategory?.CategoryId,
                         StaticViewName = prevSection?.StaticViewName,
-                        IsMandatory = prevSection?.Mandatory ?? false
+                        IsMandatory = prevSection?.Mandatory ?? false,
+                        Sequence = prevSection?.Sequence ?? 0,
                     };
 
                     return sectionModel;
