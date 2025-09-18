@@ -12,6 +12,7 @@ builder.CreateUmbracoBuilder()
     .AddNotificationHandler<ContentSavingNotification, SavingNotification>()
     .AddNotificationHandler<ContentPublishingNotification, PublishingNotifications>()
     .AddNotificationHandler<ContentMovingToRecycleBinNotification, MovingToRecycleBinNotifications>()
+    .AddNotificationHandler<SendingContentNotification, PreviewNotificationNotificationHandler>()
     .Build();
 
 builder.Services.AddEndpointsApiExplorer();
