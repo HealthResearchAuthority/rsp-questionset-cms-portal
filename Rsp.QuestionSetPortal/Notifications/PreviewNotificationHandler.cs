@@ -6,7 +6,7 @@ using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Rsp.QuestionSetPortal.Notifications;
 
-public class PreviewNotificationNotificationHandler(IPublishedSnapshotAccessor publishedSnapshotAccessor,
+public class PreviewNotificationHandler(IPublishedSnapshotAccessor publishedSnapshotAccessor,
     IConfiguration configuration) : INotificationHandler<SendingContentNotification>
 {
     private readonly string[] ContentTypes = {
