@@ -51,6 +51,7 @@
   <ItemGroup>
     <PackageReference Include="Diplo.GodMode" Version="13.1.0" />
     <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="8.4.0" />
     <PackageReference Include="Umbraco.Cms" Version="13.9.2" />
   </ItemGroup>
 
