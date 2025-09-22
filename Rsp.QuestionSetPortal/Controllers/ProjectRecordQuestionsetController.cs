@@ -88,7 +88,7 @@ public class ProjectRecordQuestionsetController : ControllerBase
     {
         var result = new List<QuestionSectionResponse>();
 
-        var questionSet = GetQuestionsetByVersion();
+        var questionSet = GetQuestionsetByVersion(version);
 
         if (questionSet != null)
         {
