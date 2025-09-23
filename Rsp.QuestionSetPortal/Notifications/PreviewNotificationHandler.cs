@@ -1,4 +1,5 @@
-﻿using Umbraco.Cms.Core.Events;
+﻿using Rsp.QuestionSetPortal.Configuration;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models.ContentEditing;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.PublishedCache;
@@ -7,7 +8,7 @@ using Umbraco.Cms.Web.Common.PublishedModels;
 namespace Rsp.QuestionSetPortal.Notifications;
 
 public class PreviewNotificationHandler(IPublishedSnapshotAccessor publishedSnapshotAccessor,
-    IConfiguration configuration) : INotificationHandler<SendingContentNotification>
+    AppSettings appSettings) : INotificationHandler<SendingContentNotification>
 {
     private readonly string[] ContentTypes = {
         GenericPage.ModelTypeAlias,
@@ -28,8 +29,8 @@ public class PreviewNotificationHandler(IPublishedSnapshotAccessor publishedSnap
             }
 
             // get the Portal URL from appsettings
-            var portalUrl = configuration.GetValue<string>("PortalUrl") != null ?
-                configuration.GetValue<string>("PortalUrl") :
+            var portalUrl = appSettings.PortalUrl != null ?
+                appSettings.PortalUrl.AbsoluteUri :
                 "";
 
             // Retrieve the route of each content item
@@ -53,7 +54,7 @@ public class PreviewNotificationHandler(IPublishedSnapshotAccessor publishedSnap
                 new NamedUrl
                 {
                     // Dynamically generate Preview URL
-                    Name = $"HRA Preview",
+                    Name = $"HRA Save & Preview",
                     Url = $"{portalUrl}{route}?preview=true"
                 }
             };
