@@ -56,5 +56,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("activeQuestionset")]
 		public virtual global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent ActiveQuestionset => this.Value<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>(_publishedValueFallback, "activeQuestionset");
+
+		///<summary>
+		/// Preview questionset: Select the questionset to be used when in preview mode
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("previewQuestionset")]
+		public virtual global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent PreviewQuestionset => this.Value<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>(_publishedValueFallback, "previewQuestionset");
 	}
 }

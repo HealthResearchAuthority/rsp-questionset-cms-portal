@@ -47,6 +47,14 @@ public class PreviewNotificationHandler(IPublishedSnapshotAccessor publishedSnap
                 // if the page previewed is homepage then we don't want to use any path in the URL
                 route = "";
             }
+            else if (notification.Content.ContentTypeAlias == QuestionsetRepository.ModelTypeAlias)
+            {
+                route = "/application/createapplication";
+            }
+            else if (notification.Content.ContentTypeAlias == ModificationsQuestionsetRepository.ModelTypeAlias)
+            {
+                route = "";
+            }
 
             variantDisplay.AdditionalPreviewUrls = new[]
             {

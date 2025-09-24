@@ -19,13 +19,13 @@ public class ProjectRecordQuestionsetController : ControllerBase
     }
 
     [HttpGet("getQuestionSet")]
-    public QuestionSetModel GetQuestionSet(string? sectionId = null, string? questionSetId = null, string? version = null)
+    public QuestionSetModel GetQuestionSet(string? sectionId = null, string? questionSetId = null, bool preview = false)
     {
         var result = new QuestionSetModel();
 
         if (!string.IsNullOrEmpty(sectionId))
         {
-            var activeQuestionSet = GetQuestionsetByVersion(version);
+            var activeQuestionSet = GetQuestionsetByVersion(preview);
 
             var section = activeQuestionSet?.Descendants<Section>().FirstOrDefault(x => x.SectionId != null &&
                 x.SectionId.Equals(sectionId, StringComparison.InvariantCultureIgnoreCase));
@@ -48,7 +48,7 @@ public class ProjectRecordQuestionsetController : ControllerBase
             if (string.IsNullOrEmpty(questionSetId))
             {
                 // no id passed so go ahead and get the active questionset
-                var activeQuestionSet = GetQuestionsetByVersion(version);
+                var activeQuestionSet = GetQuestionsetByVersion(preview);
 
                 if (activeQuestionSet != null)
                 {
@@ -84,11 +84,11 @@ public class ProjectRecordQuestionsetController : ControllerBase
     }
 
     [HttpGet("getQuestionSections")]
-    public IEnumerable<QuestionSectionResponse> GetQuestionSections(string? version = null)
+    public IEnumerable<QuestionSectionResponse> GetQuestionSections(bool preview)
     {
         var result = new List<QuestionSectionResponse>();
 
-        var questionSet = GetQuestionsetByVersion(version);
+        var questionSet = GetQuestionsetByVersion(preview);
 
         if (questionSet != null)
         {
@@ -108,14 +108,14 @@ public class ProjectRecordQuestionsetController : ControllerBase
     }
 
     [HttpGet("getNextQuestionSection")]
-    public QuestionSectionResponse? GetNextQuestionSection(string currentSectionId, string? version = null)
+    public QuestionSectionResponse? GetNextQuestionSection(string currentSectionId, bool preview)
     {
         if (string.IsNullOrEmpty(currentSectionId))
         {
             return null;
         }
 
-        var questionset = GetQuestionsetByVersion(version);
+        var questionset = GetQuestionsetByVersion(preview);
         var currentSection = questionset?
             .Descendants<Section>()
             .FirstOrDefault(x =>
@@ -152,14 +152,14 @@ public class ProjectRecordQuestionsetController : ControllerBase
     }
 
     [HttpGet("getPreviousQuestionSection")]
-    public QuestionSectionResponse? GetPreviousQuestionSection(string currentSectionId, string? version = null)
+    public QuestionSectionResponse? GetPreviousQuestionSection(string currentSectionId, bool preview)
     {
         if (string.IsNullOrEmpty(currentSectionId))
         {
             return null;
         }
 
-        var questionset = GetQuestionsetByVersion(version);
+        var questionset = GetQuestionsetByVersion(preview);
         var currentSection = questionset?
             .Descendants<Section>()
             .FirstOrDefault(x =>
@@ -196,10 +196,10 @@ public class ProjectRecordQuestionsetController : ControllerBase
     }
 
     [HttpGet("getQuestionCategories")]
-    public IEnumerable<QuestionCategoryResponse> GetQuestionCategories(string? version = null)
+    public IEnumerable<QuestionCategoryResponse> GetQuestionCategories(bool preview)
     {
         var result = new List<QuestionCategoryResponse>();
-        var questionSet = GetQuestionsetByVersion(version);
+        var questionSet = GetQuestionsetByVersion(preview: preview);
 
         if (questionSet != null)
         {
@@ -217,7 +217,7 @@ public class ProjectRecordQuestionsetController : ControllerBase
         return result;
     }
 
-    private QuestionSet? GetQuestionsetByVersion(string? version = null)
+    private QuestionSet? GetQuestionsetByVersion(bool preview = false)
     {
         var questionsetRepo = _contentQuery.ContentAtRoot()?
             .FirstOrDefault(x => x.ContentType.Alias == Questionsets.ModelTypeAlias)?
@@ -225,25 +225,16 @@ public class ProjectRecordQuestionsetController : ControllerBase
 
         if (questionsetRepo != null)
         {
-            if (string.IsNullOrEmpty(version))
+            if (preview)
             {
-                // get active questionset because version is not specified
-                var activeQuestionSet = questionsetRepo.Value<IPublishedContent>("activeQuestionset") as QuestionSet;
-                return activeQuestionSet;
+                // get preview questionset
+                var previewQuestionSet = questionsetRepo.Value<IPublishedContent>("previewQuestionset") as QuestionSet;
+                return previewQuestionSet;
             }
-            else
-            {
-                // version is specified so get questionset by version
-                var questionset = questionsetRepo
-                    .Children<QuestionSet>()?
-                    .FirstOrDefault(x =>
-                        x.VersionNumber
-                        .ToString()
-                        .Equals(version, StringComparison.InvariantCultureIgnoreCase)
-                    );
 
-                return questionset;
-            }
+            // get active questionset because version is not specified
+            var activeQuestionSet = questionsetRepo.Value<IPublishedContent>("activeQuestionset") as QuestionSet;
+            return activeQuestionSet;
         }
 
         // questionset repository does not exist
