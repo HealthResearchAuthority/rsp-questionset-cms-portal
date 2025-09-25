@@ -19,10 +19,12 @@ public static class AzureAppConfiguration
         (
             options =>
             {
+                var credentials = new ManagedIdentityCredential(azureAppSettings.AzureAppConfiguration.IdentityClientID);
+
                 options.Connect
                 (
                     new Uri(azureAppSettings!.AzureAppConfiguration.Endpoint),
-                    new ManagedIdentityCredential(azureAppSettings.AzureAppConfiguration.IdentityClientID)
+                    credentials
                 )
                 .Select(KeyFilter.Any) // select all the settings without any label
                 .Select(KeyFilter.Any, AppSettings.ServiceLabel) // select all settings using the service name as label
@@ -39,6 +41,11 @@ public static class AzureAppConfiguration
                             .Register("AppSettings:Sentinel", AppSettings.ServiceLabel, refreshAll: true)
                             .SetRefreshInterval(TimeSpan.FromSeconds(15));
                     }
+                )
+                .ConfigureKeyVault
+                (
+                    options =>
+                        options.SetCredential(credentials)
                 );
 
                 // enable feature flags
