@@ -29,4 +29,5 @@ public class QuestionModel : BaseContentObject
     public IList<AnswerModel> Answers { get; set; } = [];
     public IList<RuleModel> ValidationRules { get; set; } = [];
     public IList<ContentComponent> GuidanceComponents { get; set; } = [];
+    public string? ShowAnswerOn { get; set; }
 }
