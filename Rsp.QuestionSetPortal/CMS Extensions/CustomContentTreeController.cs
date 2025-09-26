@@ -28,7 +28,8 @@ public class MemberComponent(IContentService contentService) : INotificationHand
 
         if (content != null)
         {
-            if (content.ContentType.Alias == QuestionSet.ModelTypeAlias)
+            if (content.ContentType.Alias == QuestionSet.ModelTypeAlias ||
+                content.ContentType.Alias == ModificationsQuestionSet.ModelTypeAlias)
             {
                 var m = new MenuItem("createNewVersion", "Create new version");
                 m.LaunchDialogView("/App_Plugins/CreateNewVersion/dialog.html", "Create new version");

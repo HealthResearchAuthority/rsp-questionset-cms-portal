@@ -17,7 +17,13 @@ public class MovingToRecycleBinNotifications(
             Question.ModelTypeAlias,
             Section.ModelTypeAlias,
             AnswerOption.ModelTypeAlias,
-            AnswerSet.ModelTypeAlias
+            AnswerSet.ModelTypeAlias,
+            QuestionSlot.ModelTypeAlias,
+            QuestionsetContentContainer.ModelTypeAlias,
+            QuestionsRepository.ModelTypeAlias,
+            AnswersRepository.ModelTypeAlias,
+            CategoriesRepository.ModelTypeAlias,
+            Category.ModelTypeAlias
         ];
 
     public void Handle(ContentMovingToRecycleBinNotification notification)
