@@ -81,6 +81,14 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual int Sequence => this.Value<int>(_publishedValueFallback, "sequence");
 
 		///<summary>
+		/// ShowAnswerOn: Comma seprated view names to show the submitted answer
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("showAnswerOn")]
+		public virtual string ShowAnswerOn => this.Value<string>(_publishedValueFallback, "showAnswerOn");
+
+		///<summary>
 		/// ShowOriginalAnswer: Displays the original answer submitted with initial application
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
