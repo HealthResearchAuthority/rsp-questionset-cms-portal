@@ -65,4 +65,54 @@ public class MixedContentPageController : ControllerBase
 
         return Ok(model);
     }
+
+    [HttpGet("getDashboardContent")]
+    [ProducesResponseType(typeof(MixedContentPageModel), StatusCodes.Status200OK)]
+    public IActionResult GetDashboardContent(bool preview = false)
+    {
+        var model = new MixedContentPageModel();
+        var tryContext = _contentQuery.TryGetUmbracoContext(out var umbC);
+
+        if (!tryContext)
+        {
+            return BadRequest("UmbracoContext could not be instantiated.");
+        }
+
+        var home = umbC?
+            .Content?
+            .GetAtRoot(preview: preview)?
+            .FirstOrDefault(x => x.ContentType.Alias == Home.ModelTypeAlias) as Home;
+
+        if (home == null)
+        {
+            return NotFound();
+        }
+
+        var contentItems = home.DashboardContentItems;
+
+        if (contentItems != null)
+        {
+            foreach (var placeholderItem in contentItems.Select(x => x.Content as MixedPagePlaceholderItem))
+            {
+                if (placeholderItem?.Placeholder != null)
+                {
+                    var placeholderNode = placeholderItem.Placeholder;
+                    var value = placeholderItem?.Content?.FirstOrDefault();
+
+                    if (value != null)
+                    {
+                        var valueType = value.Content.ContentType.Alias;
+                        var placeholderValue = value.Content.Value<string>("value");
+
+                        model.ContentItems.TryAdd(placeholderNode.Name, new MixedContentPageItem
+                        {
+                            Value = placeholderValue,
+                            ValueType = valueType
+                        });
+                    }
+                }
+            }
+        }
+        return Ok(model);
+    }
 }
