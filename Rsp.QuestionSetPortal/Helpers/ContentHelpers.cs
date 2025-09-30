@@ -32,6 +32,7 @@ public static class ContentHelpers
                 questionModel.ShowOriginalAnswer = questionSlot.ShowOriginalAnswer;
                 questionModel.Sequence = questionSlot.Sequence;
                 questionModel.SectionSequence = section.Sequence;
+                questionModel.ShowAnswerOn = questionSlot.ShowAnswerOn;
 
                 if (associatedQuestion != null)
                 {
