@@ -21,6 +21,11 @@ public static class ContentHelpers
             {
                 var associatedQuestion = questionSlot.QuestionContent as Question;
 
+                if (associatedQuestion == null)
+                {
+                    continue;
+                }
+
                 var questionModel = associatedQuestion.Adapt<QuestionModel>();
 
                 questionModel.CategoryId = section.Category?.Name;
