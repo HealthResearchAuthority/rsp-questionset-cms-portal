@@ -7,7 +7,8 @@ using Umbraco.Cms.Web.Common.PublishedModels;
 namespace Rsp.QuestionSetPortal.Notifications;
 
 public class PublishingNotifications(
-    IPublishedContentQuery contentService) : INotificationHandler<ContentPublishingNotification>
+    IPublishedContentQuery contentService,
+    IBackOfficeSecurity backofficeSecutiry) : INotificationHandler<ContentPublishingNotification>
 {
     // execute this notification when saving the following content types
     private readonly string[] TypeAlias =
@@ -21,6 +22,15 @@ public class PublishingNotifications(
 
     public void Handle(ContentPublishingNotification notification)
     {
+        // get the current CMS user
+        var currentCmsUser = backofficeSecutiry.CurrentUser;
+
+        // check if CMS user is admin in which case let them delete the content
+        if (currentCmsUser != null && currentCmsUser.IsAdmin())
+        {
+            return;
+        }
+
         foreach (var node in notification.PublishedEntities)
         {
             if (!TypeAlias.Contains(node.ContentType.Alias))

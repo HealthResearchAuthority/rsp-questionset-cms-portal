@@ -1,11 +1,13 @@
 ﻿using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
+using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Rsp.QuestionSetPortal.Notifications;
 
-public class SavingNotification(IPublishedContentQuery contentService) : INotificationHandler<ContentSavingNotification>
+public class SavingNotification(IPublishedContentQuery contentService,
+    IBackOfficeSecurity backofficeSecutiry) : INotificationHandler<ContentSavingNotification>
 {
     // execute this notification when saving the following content types
     private readonly string[] TypeAlias =
@@ -19,6 +21,15 @@ public class SavingNotification(IPublishedContentQuery contentService) : INotifi
 
     public void Handle(ContentSavingNotification notification)
     {
+        // get the current CMS user
+        var currentCmsUser = backofficeSecutiry.CurrentUser;
+
+        // check if CMS user is admin in which case let them delete the content
+        if (currentCmsUser != null && currentCmsUser.IsAdmin())
+        {
+            return;
+        }
+
         foreach (var node in notification.SavedEntities)
         {
             if (!TypeAlias.Contains(node.ContentType.Alias))
