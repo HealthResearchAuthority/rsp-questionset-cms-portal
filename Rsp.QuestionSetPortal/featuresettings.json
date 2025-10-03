@@ -1,5 +1,5 @@
 {
     "FeatureManagement": {
-        "WebApp.UseFrontDoor": true // If enbaled, will use the configured AllowedHosts for front door.
+        "WebApp.UseFrontDoor": false // If enbaled, will use the configured AllowedHosts for front door.
     }
 }
