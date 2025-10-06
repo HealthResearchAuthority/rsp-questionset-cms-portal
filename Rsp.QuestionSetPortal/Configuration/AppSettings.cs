@@ -13,4 +13,6 @@ public class AppSettings
     public AzureAppConfigurations AzureAppConfiguration { get; set; } = null!;
 
     public Uri? PortalUrl { get; set; }
+
+    public string AllowedHosts { get; set; } = null!;
 }
