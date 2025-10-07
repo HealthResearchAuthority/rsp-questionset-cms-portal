@@ -66,12 +66,42 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel EditorComment => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockListModel>(_publishedValueFallback, "editorComment");
 
 		///<summary>
+		/// Evaluate Organisations Affected: If set to true, the answer of this question should be used to indicate if all or some organisations are affected.
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("evaluateOrganisationsAffected")]
+		public virtual bool EvaluateOrganisationsAffected => this.Value<bool>(_publishedValueFallback, "evaluateOrganisationsAffected");
+
+		///<summary>
+		/// Evaluate Resource Implications: If set to true, answer to this question should be used to indicate if additional resources are needed or not.
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("evaluateResourceImplications")]
+		public virtual bool EvaluateResourceImplications => this.Value<bool>(_publishedValueFallback, "evaluateResourceImplications");
+
+		///<summary>
 		/// UI Content: Add UI guidance content that is related to this question
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("guidanceContent")]
 		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel GuidanceContent => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockListModel>(_publishedValueFallback, "guidanceContent");
+
+		///<summary>
+		/// NHS Involvement: Indicates that NHS involvement should be checked using the possible answer of this question
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("nhsInvolvement")]
+		public virtual global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent> NhsInvolvement => this.Value<global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>>(_publishedValueFallback, "nhsInvolvement");
+
+		///<summary>
+		/// Non NHS Involvement: Indicates that non-NHS involvement should be checked using the possible answer of this question.
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("nonNHSInvolvement")]
+		public virtual global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent> NonNhsinvolvement => this.Value<global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>>(_publishedValueFallback, "nonNHSInvolvement");
 
 		///<summary>
 		/// Possible Answers
