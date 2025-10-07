@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Rsp.QuestionSetPortal.Models.UIContent;
 using Rsp.QuestionSetPortal.Models.WebsiteContent;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Web;
@@ -43,6 +44,17 @@ public class ContentSiteSettingsController : ControllerBase
                });
 
             model.FooterLinks = footer?.ToList();
+
+            if (homeNode.PhaseBannerContent != null)
+            {
+                model.PhaseBannerContent = new RichTextProperty
+                {
+                    Value = new RichTextValue
+                    {
+                        Markup = homeNode.PhaseBannerContent.ToHtmlString()
+                    }
+                };
+            }
         }
 
         return Ok(model);
