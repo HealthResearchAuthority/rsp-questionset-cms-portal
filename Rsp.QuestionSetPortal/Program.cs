@@ -3,6 +3,7 @@ using Microsoft.FeatureManagement;
 using Rsp.QuestionSetPortal.Configuration;
 using Rsp.QuestionSetPortal.Constants;
 using Rsp.QuestionSetPortal.Notifications;
+using Rsp.QuestionSetPortal.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using Umbraco.Cms.Core.Notifications;
 
@@ -40,6 +41,8 @@ builder.Services.Configure<AppSettings>(settings);
 var appSettings = settings.Get<AppSettings>()!;
 
 builder.Services.AddSingleton(appSettings);
+builder.Services.AddScoped<IRankingCalculationService, RankingCalculationService>();
+builder.Services.AddScoped<IModificationQuestionSetService, ModificationQuestionSetService>();
 
 builder.Services.AddFeatureManagement();
 
