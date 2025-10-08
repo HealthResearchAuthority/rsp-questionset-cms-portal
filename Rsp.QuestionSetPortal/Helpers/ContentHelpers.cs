@@ -101,7 +101,7 @@ public static class ContentHelpers
                     {
                         ContentType = component.ContentType.Alias,
                         Title = component.Title,
-                        Value = component.Value,
+                        Value = component?.Value?.ToHtmlString(),
                     });
 
                     break;
