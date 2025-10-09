@@ -55,6 +55,23 @@ public class ContentSiteSettingsController : ControllerBase
                     }
                 };
             }
+
+            if (homeNode.ServiceNavigationLinks != null && homeNode.ServiceNavigationLinks.Any())
+            {
+                var serviceNav = homeNode.ServiceNavigationLinks?.Select(x =>
+                   new ServiceNavigationItemModel
+                   {
+                       Link = new Link
+                       {
+                           Url = x.Content.Value<Link>("itemUrl")?.Url,
+                           Name = x.Content.Value<Link>("itemUrl")?.Name,
+                           Target = x.Content.Value<Link>("itemUrl")?.Target
+                       },
+                       RequiresAuthorisation = x.Content.Value<bool>("requiresAuthorisation")
+                   });
+
+                model.ServiceNavigation = serviceNav?.ToList();
+            }
         }
 
         return Ok(model);
