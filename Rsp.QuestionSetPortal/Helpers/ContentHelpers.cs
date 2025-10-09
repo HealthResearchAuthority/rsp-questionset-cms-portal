@@ -90,28 +90,41 @@ public static class ContentHelpers
                             Value = x.Content.Value<string>("value")
                         })?.ToList();
 
-                        result.Add(new AccordionComponentModel { ContentType = component.ContentType.Alias, Items = items != null ? items : [] });
+                        result.Add(new ContentComponent
+                        {
+                            ContentType = component.ContentType.Alias,
+                            Properties = new
+                            {
+                                Items = items ?? []
+                            }
+                        });
                     }
 
                     break;
 
                 case DetailsComponent component:
 
-                    result.Add(new DetailsComponentModel
+                    result.Add(new ContentComponent
                     {
                         ContentType = component.ContentType.Alias,
-                        Title = component.Title,
-                        Value = component?.Value?.ToHtmlString(),
+                        Properties = new
+                        {
+                            component.Title,
+                            Value = new RichTextValue { Markup = component?.Value?.ToHtmlString() }
+                        }
                     });
 
                     break;
 
                 case BodyTextComponent component:
 
-                    result.Add(new BodyTextComponentModel
+                    result.Add(new ContentComponent
                     {
                         ContentType = component.ContentType.Alias,
-                        Value = component.Value,
+                        Properties = new
+                        {
+                            component.Value
+                        }
                     });
 
                     break;
@@ -125,7 +138,15 @@ public static class ContentHelpers
                             Title = x.Content.Value<string>("title"),
                             Value = x.Content.Value<string>("value")
                         })?.ToList();
-                        result.Add(new TabsComponentModel { ContentType = component.ContentType.Alias, Items = items != null ? items : [] });
+
+                        result.Add(new ContentComponent
+                        {
+                            ContentType = component.ContentType.Alias,
+                            Properties = new
+                            {
+                                Items = items ?? []
+                            }
+                        });
                     }
 
                     break;
