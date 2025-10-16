@@ -64,6 +64,7 @@ public static class ContentHelpers
 
                     questionModel.AffectedOrganisations = associatedQuestion.EvaluateOrganisationsAffected;
                     questionModel.RequireAdditionalResources = associatedQuestion.EvaluateResourceImplications;
+                    questionModel.UseAnswerForNextSection = associatedQuestion.UseAnswerForNextSection;
                 }
 
                 result.Add(questionModel);

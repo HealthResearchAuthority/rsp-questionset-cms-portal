@@ -168,7 +168,7 @@ public class ModificationsQuestionsetController
     }
 
     [HttpGet]
-    public QuestionSectionResponse? GetNextQuestionSection(string currentSectionId, string? version = null)
+    public QuestionSectionResponse? GetNextQuestionSection(string currentSectionId, string? version = null, string? parentQuestionId = null, string? parentAnswerOption = null)
     {
         if (string.IsNullOrEmpty(currentSectionId))
         {
@@ -192,7 +192,27 @@ public class ModificationsQuestionsetController
             return null;
         }
 
-        var currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
+        var currentSectionIndex = -1;
+        if (parentQuestionId != null && parentAnswerOption != null)
+        {
+            var index = from section in allSections
+                        where section.Key == currentSection.Key
+                        let slot = section.ParentQuestion as QuestionSlot
+                        where slot != null && slot.QuestionId == parentQuestionId
+                        let answerOption = section.ParentAnswerOption as AnswerOption
+                        where answerOption != null && answerOption.Name == parentAnswerOption
+                        select section;
+
+            currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key
+            && x.ParentQuestion is QuestionSlot slot
+            && slot.QuestionId == parentQuestionId
+            && x.ParentAnswerOption is AnswerOption answerOption
+            && answerOption.Name == parentAnswerOption);
+        }
+        else
+        {
+            currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
+        }
 
         if (allSections.ElementAtOrDefault(currentSectionIndex + 1) != null)
         {
@@ -214,7 +234,7 @@ public class ModificationsQuestionsetController
     }
 
     [HttpGet]
-    public QuestionSectionResponse? GetPreviousQuestionSection(string currentSectionId, string? version = null)
+    public QuestionSectionResponse? GetPreviousQuestionSection(string currentSectionId, string? version = null, string? parentQuestionId = null, string? parentAnswerOption = null)
     {
         if (string.IsNullOrEmpty(currentSectionId))
         {
@@ -237,14 +257,34 @@ public class ModificationsQuestionsetController
 
             if (allSections != null)
             {
-                var currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
+                var currentSectionIndex = -1;
+                if (parentQuestionId != null && parentAnswerOption != null)
+                {
+                    var index = from section in allSections
+                                where section.Key == currentSection.Key
+                                let slot = section.ParentQuestion as QuestionSlot
+                                where slot != null && slot.QuestionId == parentQuestionId
+                                let answerOption = section.ParentAnswerOption as AnswerOption
+                                where answerOption != null && answerOption.Name == parentAnswerOption
+                                select section;
+
+                    currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key
+                    && x.ParentQuestion is QuestionSlot slot
+                    && slot.QuestionId == parentQuestionId
+                    && x.ParentAnswerOption is AnswerOption answerOption
+                    && answerOption.Name == parentAnswerOption);
+                }
+                else
+                {
+                    currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
+                }
 
                 if (allSections.ElementAtOrDefault(currentSectionIndex - 1) != null)
                 {
                     var prevSection = allSections.ElementAtOrDefault(currentSectionIndex - 1);
                     var prevSectionCategory = prevSection?.Category as Category;
 
-                    var sectionModel = new QuestionSectionResponse
+                    return new QuestionSectionResponse
                     {
                         SectionId = prevSection?.SectionId,
                         SectionName = prevSection?.SectionName?.ToString(),
@@ -253,8 +293,6 @@ public class ModificationsQuestionsetController
                         IsMandatory = prevSection?.Mandatory ?? false,
                         Sequence = prevSection?.Sequence ?? 0,
                     };
-
-                    return sectionModel;
                 }
             }
         }
