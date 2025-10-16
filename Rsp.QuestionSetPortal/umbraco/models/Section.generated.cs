@@ -73,6 +73,22 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual bool Mandatory => this.Value<bool>(_publishedValueFallback, "mandatory");
 
 		///<summary>
+		/// ParentAnswerOption
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("parentAnswerOption")]
+		public virtual global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent> ParentAnswerOption => this.Value<global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>>(_publishedValueFallback, "parentAnswerOption");
+
+		///<summary>
+		/// ParentQuestion
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("parentQuestion")]
+		public virtual global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent ParentQuestion => this.Value<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>(_publishedValueFallback, "parentQuestion");
+
+		///<summary>
 		/// Section Id
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
