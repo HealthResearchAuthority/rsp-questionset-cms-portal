@@ -19,6 +19,8 @@ public class SectionModel : BaseContentObject
 
     public int Sequence { get; set; }
 
+    public bool IsLastSectionBeforeReview { get; set; }
+
     /// <summary>
     /// Contains the questions in this section
     /// </summary>

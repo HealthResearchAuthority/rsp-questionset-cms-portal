@@ -8,4 +8,5 @@ public class QuestionSectionResponse
     public string? StaticViewName { get; set; }
     public bool IsMandatory { get; set; }
     public int Sequence { get; set; }
+    public bool IsLastSectionBeforeReview { get; set; }
 }

@@ -159,6 +159,7 @@ public class ModificationsQuestionsetController
                 StaticViewName = section.StaticViewName,
                 IsMandatory = section.Mandatory,
                 Sequence = section.Sequence,
+                IsLastSectionBeforeReview = section.IsLastSectionBeforeReview
             };
 
             result.Sections.Add(sectionModel);
@@ -170,131 +171,109 @@ public class ModificationsQuestionsetController
     [HttpGet]
     public QuestionSectionResponse? GetNextQuestionSection(string currentSectionId, string? version = null, string? parentQuestionId = null, string? parentAnswerOption = null)
     {
+        return FindSection(currentSectionId, 1, version, parentQuestionId, parentAnswerOption);
+    }
+
+    [HttpGet]
+    public QuestionSectionResponse? GetPreviousQuestionSection(string currentSectionId, string? version = null, string? parentQuestionId = null, string? parentAnswerOption = null)
+    {
+        return FindSection(currentSectionId, -1, version, parentQuestionId, parentAnswerOption);
+    }
+
+    /// <summary>
+    /// Finds the next or previous section in a modification journey based on the current section and offset.
+    /// Optionally, can locate a section by parent question and answer option.
+    /// </summary>
+    /// <param name="currentSectionId">The section ID of the current section.</param>
+    /// <param name="indexOffset">Offset for navigation: 1 for next, -1 for previous.</param>
+    /// <param name="version">Optional version of the question set.</param>
+    /// <param name="parentQuestionId">Optional parent question ID for conditional navigation.</param>
+    /// <param name="parentAnswerOption">Optional parent answer option for conditional navigation.</param>
+    /// <returns>
+    /// A <see cref="QuestionSectionResponse"/> representing the target section, or null if not found.
+    /// </returns>
+    private QuestionSectionResponse? FindSection(string currentSectionId, int indexOffset, string? version = null, string? parentQuestionId = null, string? parentAnswerOption = null)
+    {
+        // Validate input
         if (string.IsNullOrEmpty(currentSectionId))
         {
             return null;
         }
 
+        // Retrieve the question set for the specified version
         var questionset = questionSetService.GetQuestionsetByVersion(version);
 
+        // Find the current section by its ID
         var currentSection = questionset?
            .Descendants<Section>()
            .FirstOrDefault
            (
                section =>
-                   !string.IsNullOrEmpty(section.SectionId) &&
+                    !string.IsNullOrEmpty(section.SectionId) &&
                     section.SectionId.Equals(currentSectionId, StringComparison.InvariantCultureIgnoreCase)
            );
 
+        // Get all sections in the current journey
         if (currentSection is null ||
             currentSection.Parent<ModificationJourney>()?.Children<Section>() is not IEnumerable<Section> allSections)
         {
             return null;
         }
 
-        var currentSectionIndex = -1;
+        // Find the index of the current section
+        var currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
+
+        // Calculate the target section index using the offset
+        var targetSectionIndex = currentSectionIndex + indexOffset;
+
+        // If parent question and answer option are provided, find the section matching those
         if (parentQuestionId != null && parentAnswerOption != null)
         {
-            var index = from section in allSections
-                        where section.Key == currentSection.Key
-                        let slot = section.ParentQuestion as QuestionSlot
-                        where slot != null && slot.QuestionId == parentQuestionId
-                        let answerOption = section.ParentAnswerOption as AnswerOption
-                        where answerOption != null && answerOption.Name == parentAnswerOption
-                        select section;
+            var options = parentAnswerOption.Split([",", "<br/>"], StringSplitOptions.RemoveEmptyEntries);
 
-            currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key
-            && x.ParentQuestion is QuestionSlot slot
-            && slot.QuestionId == parentQuestionId
-            && x.ParentAnswerOption is AnswerOption answerOption
-            && answerOption.Name == parentAnswerOption);
-        }
-        else
-        {
-            currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
+            targetSectionIndex =
+            (
+                from section in allSections
+                let slot = section.ParentQuestion as QuestionSlot
+                let answerOptions = section.ParentAnswerOption
+                where
+                    section.Key != currentSection.Key &&
+                    slot?.QuestionId == parentQuestionId &&
+                    answerOptions?.Select(option => (option as AnswerOption)?.OptionName).Intersect(options).Any() is true
+                select allSections.IndexOf(section)
+            ).SingleOrDefault();
         }
 
-        if (allSections.ElementAtOrDefault(currentSectionIndex + 1) != null)
+        // when finding the previous section, we need to consider
+        // if current section is linked to the parent question, and so it should go back to that section
+        if (indexOffset == -1 && currentSection.ParentQuestion is QuestionSlot parentQuestionSlot)
         {
-            var nextSection = allSections.ElementAtOrDefault(currentSectionIndex + 1);
-            var nextSectionCategory = nextSection?.Category as Category;
+            var section = parentQuestionSlot.Parent<Section>();
 
+            if (section != null)
+            {
+                targetSectionIndex = allSections.FindIndex(x => x.Key == section.Key);
+            }
+        }
+
+        // Get the target section by index
+        var targetSection = allSections.ElementAtOrDefault(targetSectionIndex);
+
+        if (targetSection != null)
+        {
+            var sectionCategory = targetSection.Category as Category;
+
+            // Return the response with section details
             return new QuestionSectionResponse
             {
-                SectionId = nextSection?.SectionId,
-                SectionName = nextSection?.SectionName?.ToString(),
-                QuestionCategoryId = nextSectionCategory?.CategoryId,
-                StaticViewName = nextSection?.StaticViewName,
-                IsMandatory = nextSection?.Mandatory ?? false,
-                Sequence = nextSection?.Sequence ?? 0,
+                SectionId = targetSection.SectionId,
+                SectionName = targetSection.SectionName?.ToString(),
+                QuestionCategoryId = sectionCategory?.CategoryId,
+                StaticViewName = targetSection.StaticViewName,
+                IsMandatory = targetSection.Mandatory,
+                Sequence = targetSection.Sequence,
+                IsLastSectionBeforeReview = targetSection.IsLastSectionBeforeReview
             };
-        }
-
-        return null;
-    }
-
-    [HttpGet]
-    public QuestionSectionResponse? GetPreviousQuestionSection(string currentSectionId, string? version = null, string? parentQuestionId = null, string? parentAnswerOption = null)
-    {
-        if (string.IsNullOrEmpty(currentSectionId))
-        {
-            return null;
-        }
-
-        var questionset = questionSetService.GetQuestionsetByVersion(version);
-
-        var currentSection = questionset?
-           .Descendants<Section>()
-           .FirstOrDefault(x =>
-               !string.IsNullOrEmpty(x.SectionId) &&
-                x.SectionId
-               .Equals(currentSectionId, StringComparison.InvariantCultureIgnoreCase)
-           );
-
-        if (currentSection != null)
-        {
-            var allSections = currentSection.Parent<ModificationJourney>()?.Children<Section>();
-
-            if (allSections != null)
-            {
-                var currentSectionIndex = -1;
-                if (parentQuestionId != null && parentAnswerOption != null)
-                {
-                    var index = from section in allSections
-                                where section.Key == currentSection.Key
-                                let slot = section.ParentQuestion as QuestionSlot
-                                where slot != null && slot.QuestionId == parentQuestionId
-                                let answerOption = section.ParentAnswerOption as AnswerOption
-                                where answerOption != null && answerOption.Name == parentAnswerOption
-                                select section;
-
-                    currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key
-                    && x.ParentQuestion is QuestionSlot slot
-                    && slot.QuestionId == parentQuestionId
-                    && x.ParentAnswerOption is AnswerOption answerOption
-                    && answerOption.Name == parentAnswerOption);
-                }
-                else
-                {
-                    currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
-                }
-
-                if (allSections.ElementAtOrDefault(currentSectionIndex - 1) != null)
-                {
-                    var prevSection = allSections.ElementAtOrDefault(currentSectionIndex - 1);
-                    var prevSectionCategory = prevSection?.Category as Category;
-
-                    return new QuestionSectionResponse
-                    {
-                        SectionId = prevSection?.SectionId,
-                        SectionName = prevSection?.SectionName?.ToString(),
-                        QuestionCategoryId = prevSectionCategory?.CategoryId,
-                        StaticViewName = prevSection?.StaticViewName,
-                        IsMandatory = prevSection?.Mandatory ?? false,
-                        Sequence = prevSection?.Sequence ?? 0,
-                    };
-                }
-            }
         }
 
         return null;

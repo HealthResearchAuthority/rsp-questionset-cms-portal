@@ -251,6 +251,7 @@ public static class ContentHelpers
     public static SectionModel PopulateSectionModel(Section section)
     {
         var category = section.Category as Category;
+
         var sectionModel = new SectionModel
         {
             SectionName = section.SectionName,
@@ -260,8 +261,10 @@ public static class ContentHelpers
             CategoryId = category?.CategoryId,
             StaticViewName = section.StaticViewName,
             IsMandatory = section.Mandatory,
-            Sequence = section.Sequence
+            Sequence = section.Sequence,
+            IsLastSectionBeforeReview = section.IsLastSectionBeforeReview
         };
+
         return sectionModel;
     }
 }
