@@ -142,5 +142,12 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("supplementaryInfo")]
 		public virtual string SupplementaryInfo => this.Value<string>(_publishedValueFallback, "supplementaryInfo");
+
+		///<summary>
+		/// UseAnswerForNextSection
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("useAnswerForNextSection")]
+		public virtual bool UseAnswerForNextSection => this.Value<bool>(_publishedValueFallback, "useAnswerForNextSection");
 	}
 }

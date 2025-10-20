@@ -37,4 +37,5 @@ public class QuestionModel : BaseContentObject
     public string? NonNhsInvolvment { get; set; }
     public bool AffectedOrganisations { get; set; }
     public bool RequireAdditionalResources { get; set; }
+    public bool UseAnswerForNextSection { get; set; }
 }

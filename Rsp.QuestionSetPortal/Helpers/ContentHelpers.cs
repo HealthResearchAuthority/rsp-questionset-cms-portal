@@ -64,6 +64,7 @@ public static class ContentHelpers
 
                     questionModel.AffectedOrganisations = associatedQuestion.EvaluateOrganisationsAffected;
                     questionModel.RequireAdditionalResources = associatedQuestion.EvaluateResourceImplications;
+                    questionModel.UseAnswerForNextSection = associatedQuestion.UseAnswerForNextSection;
                 }
 
                 result.Add(questionModel);
@@ -250,6 +251,7 @@ public static class ContentHelpers
     public static SectionModel PopulateSectionModel(Section section)
     {
         var category = section.Category as Category;
+
         var sectionModel = new SectionModel
         {
             SectionName = section.SectionName,
@@ -259,8 +261,10 @@ public static class ContentHelpers
             CategoryId = category?.CategoryId,
             StaticViewName = section.StaticViewName,
             IsMandatory = section.Mandatory,
-            Sequence = section.Sequence
+            Sequence = section.Sequence,
+            IsLastSectionBeforeReview = section.IsLastSectionBeforeReview
         };
+
         return sectionModel;
     }
 }
