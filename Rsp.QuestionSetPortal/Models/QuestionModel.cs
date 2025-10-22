@@ -30,7 +30,7 @@ public class QuestionModel : BaseContentObject
     public IList<RuleModel> ValidationRules { get; set; } = [];
     public IList<ContentComponent> GuidanceComponents { get; set; } = [];
     public string? ShowAnswerOn { get; set; }
-    public string? SectionGroup { get; internal set; }
+    public string? SectionGroup { get; set; }
     public int SequenceInSectionGroup { get; set; }
 
     // properties for calculating ranking
