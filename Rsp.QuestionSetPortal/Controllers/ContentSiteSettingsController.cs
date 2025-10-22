@@ -56,6 +56,17 @@ public class ContentSiteSettingsController : ControllerBase
                 };
             }
 
+            if (homeNode.CookieBannerContent != null)
+            {
+                model.CookieBannerContent = new RichTextProperty
+                {
+                    Value = new RichTextValue
+                    {
+                        Markup = homeNode.CookieBannerContent.ToHtmlString()
+                    }
+                };
+            }
+
             if (homeNode.ServiceNavigationLinks != null && homeNode.ServiceNavigationLinks.Any())
             {
                 var serviceNav = homeNode.ServiceNavigationLinks?.Select(x =>
