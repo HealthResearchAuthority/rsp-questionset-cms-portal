@@ -38,6 +38,8 @@ public static class ContentHelpers
                 questionModel.Sequence = questionSlot.Sequence;
                 questionModel.SectionSequence = section.Sequence;
                 questionModel.ShowAnswerOn = questionSlot.ShowAnswerOn;
+                questionModel.SectionGroup = questionSlot.SectionGroup;
+                questionModel.SequenceInSectionGroup = questionSlot.SequenceInSectionGroup;
 
                 if (associatedQuestion != null)
                 {
