@@ -74,11 +74,26 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string QuestionId => this.Value<string>(_publishedValueFallback, "questionId");
 
 		///<summary>
+		/// SectionGroup: Group name of the section where this question should be displayed, not the parent section.
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("sectionGroup")]
+		public virtual string SectionGroup => this.Value<string>(_publishedValueFallback, "sectionGroup");
+
+		///<summary>
 		/// Sequence: Indicates the position of question within the section
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
 		[ImplementPropertyType("sequence")]
 		public virtual int Sequence => this.Value<int>(_publishedValueFallback, "sequence");
+
+		///<summary>
+		/// SequenceInSectionGroup: This property indicates the sequence of this question within the Section Group.
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("sequenceInSectionGroup")]
+		public virtual int SequenceInSectionGroup => this.Value<int>(_publishedValueFallback, "sequenceInSectionGroup");
 
 		///<summary>
 		/// ShowAnswerOn: Comma seprated view names to show the submitted answer
