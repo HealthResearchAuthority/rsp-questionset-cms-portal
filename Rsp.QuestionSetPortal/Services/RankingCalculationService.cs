@@ -76,29 +76,43 @@ public class RankingCalculationService
     /// <returns>A <see cref="CategoryRank"/> object with the calculated category ranking.</returns>
     public Task<CategoryRank> GetCategoryRanking(Guid specificAreaOfChangeId, bool isNhsInvolved, bool isNonNhsInvolved, string? nhsOrgsAffected, bool resourceImplications, string? version = null)
     {
-        // Retrieve the active question set for the given version
-        var activeQuestionSet = questionSetService.GetQuestionsetByVersion(version);
+        /*
+        Pseudocode:
+        - Get active question set by version.
+        - From it, enumerate all Categorisation items under ModificationRanking.
+        - If none, return default CategoryRank.
+        - Build a predicate:
+          - Always require:
+            - SpecificAreaOfChange includes the specificAreaOfChangeId
+            - IsNhsinvolved == isNhsInvolved
+            - IsNonNhsinvolved == isNonNhsInvolved
+          - Additionally, only if isNhsInvolved == true:
+            - NhsResourceImplications == resourceImplications
+            - NhsOrganisationsAffected equals nhsOrgsAffected (case-insensitive; treat null as empty)
+          - If isNhsInvolved == false:
+            - Ignore NHS-specific filters (both NhsOrganisationsAffected and NhsResourceImplications not applicable)
+        - Find single match (SingleOrDefault).
+        - If found, set Category and Order on result.
+        - Return CategoryRank.
+        */
 
-        // Get the ModificationRanking childs from the question set
+        var activeQuestionSet = questionSetService.GetQuestionsetByVersion(version);
         var rankings = activeQuestionSet?.Children<ModificationRanking>();
 
-        // get the modification ranking of type Categorisation from the rankings
         var categorisations =
-            from ranking in rankings
-            let children = ranking.Children<Categorisation>()
-            where children?.Any() is true
-            from child in children
-            select child;
+            (from ranking in rankings
+             let children = ranking.Children<Categorisation>()
+             where children?.Any() is true
+             from child in children
+             select child).ToList();
 
         var categoryRank = new CategoryRank();
 
-        // If no ranking or no Categorisation children, return default CategoryRank
         if (categorisations?.Any() is false)
         {
             return Task.FromResult(categoryRank);
         }
 
-        // Find the Categorisation that matches the criteria
         var categorisation =
         (
             from cat in categorisations
@@ -107,12 +121,17 @@ public class RankingCalculationService
             where criteria.SpecificAreaOfChange?.Any(x => x.Key.ToString() == specificAreaOfChangeId.ToString()) is true &&
                   criteria.IsNhsinvolved == isNhsInvolved &&
                   criteria.IsNonNhsinvolved == isNonNhsInvolved &&
-                  criteria.NhsOrganisationsAffected == nhsOrgsAffected &&
-                  criteria.NhsResourceImplications == resourceImplications
+                  (
+                    //NHS - specific fields only apply when NHS is involved
+                    !isNhsInvolved ||
+                    (
+                        criteria.NhsResourceImplications == resourceImplications &&
+                        criteria.NhsOrganisationsAffected == nhsOrgsAffected
+                    )
+                  )
             select cat
-        ).SingleOrDefault();
+        ).FirstOrDefault();
 
-        // If found, set the Category property on the result
         if (categorisation is not null)
         {
             categoryRank.Category = categorisation.Category!;
