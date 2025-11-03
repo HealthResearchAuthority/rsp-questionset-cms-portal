@@ -159,7 +159,9 @@ public class ModificationsQuestionsetController
                 StaticViewName = section.StaticViewName,
                 IsMandatory = section.Mandatory,
                 Sequence = section.Sequence,
-                IsLastSectionBeforeReview = section.IsLastSectionBeforeReview
+                IsLastSectionBeforeReview = section.IsLastSectionBeforeReview,
+                EvaluateBackRoute = section.EvaluateBackRoute,
+                StoreUrlReferrer = section.StoreReferrer
             };
 
             result.Sections.Add(sectionModel);
@@ -223,11 +225,17 @@ public class ModificationsQuestionsetController
         // Find the index of the current section
         var currentSectionIndex = allSections.FindIndex(x => x.Key == currentSection.Key);
 
-        // Calculate the target section index using the offset
         var targetSectionIndex = currentSectionIndex + indexOffset;
 
+        // Calculate the target section index using the offset
+        if (indexOffset == 1 && currentSection.NextSection is not null)
+        {
+            targetSectionIndex =
+                allSections.FindIndex(x => x.Key == currentSection.NextSection.Key);
+        }
+
         // If parent question and answer option are provided, find the section matching those
-        if (parentQuestionId != null && parentAnswerOption != null)
+        else if (parentQuestionId != null && parentAnswerOption != null)
         {
             var options = parentAnswerOption.Split([",", "<br/>"], StringSplitOptions.RemoveEmptyEntries);
 

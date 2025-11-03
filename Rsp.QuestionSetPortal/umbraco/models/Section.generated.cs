@@ -58,6 +58,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent Category => this.Value<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>(_publishedValueFallback, "category");
 
 		///<summary>
+		/// Evaluate Back Route: If set to true, the url referrer from memory will be used to navigate back
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("evaluateBackRoute")]
+		public virtual bool EvaluateBackRoute => this.Value<bool>(_publishedValueFallback, "evaluateBackRoute");
+
+		///<summary>
 		/// UI Content: Add UI guidance content that is related to this section
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
@@ -78,6 +85,14 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
 		[ImplementPropertyType("mandatory")]
 		public virtual bool Mandatory => this.Value<bool>(_publishedValueFallback, "mandatory");
+
+		///<summary>
+		/// Next Section: Next section to navigate to
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("nextSection")]
+		public virtual global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent NextSection => this.Value<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>(_publishedValueFallback, "nextSection");
 
 		///<summary>
 		/// ParentAnswerOption
@@ -125,5 +140,12 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("staticViewName")]
 		public virtual string StaticViewName => this.Value<string>(_publishedValueFallback, "staticViewName");
+
+		///<summary>
+		/// Store Referrer: If set to true, the urlReferrer will be stored in memory
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[ImplementPropertyType("storeReferrer")]
+		public virtual bool StoreReferrer => this.Value<bool>(_publishedValueFallback, "storeReferrer");
 	}
 }
