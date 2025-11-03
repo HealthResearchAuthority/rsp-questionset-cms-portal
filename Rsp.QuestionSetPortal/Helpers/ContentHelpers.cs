@@ -264,7 +264,9 @@ public static class ContentHelpers
             StaticViewName = section.StaticViewName,
             IsMandatory = section.Mandatory,
             Sequence = section.Sequence,
-            IsLastSectionBeforeReview = section.IsLastSectionBeforeReview
+            IsLastSectionBeforeReview = section.IsLastSectionBeforeReview,
+            EvaluateBackRoute = section.EvaluateBackRoute,
+            StoreUrlReferrer = section.StoreReferrer
         };
 
         return sectionModel;
