@@ -32,6 +32,7 @@ public class QuestionModel : BaseContentObject
     public string? ShowAnswerOn { get; set; }
     public string? SectionGroup { get; set; }
     public int SequenceInSectionGroup { get; set; }
+    public bool IsEditable { get; set; }
 
     // properties for calculating ranking
     public string? NhsInvolvment { get; set; }

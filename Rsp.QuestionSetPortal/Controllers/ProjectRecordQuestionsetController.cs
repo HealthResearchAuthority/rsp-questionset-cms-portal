@@ -100,6 +100,7 @@ public class ProjectRecordQuestionsetController : ControllerBase
                     SectionId = section.SectionId,
                     SectionName = section?.SectionName?.ToString(),
                     QuestionCategoryId = category?.CategoryId,
+                    Sequence = (section?.Sequence) ?? 0,
                 });
             }
         }
@@ -141,6 +142,7 @@ public class ProjectRecordQuestionsetController : ControllerBase
                         SectionId = nextSection?.SectionId,
                         SectionName = nextSection?.SectionName?.ToString(),
                         QuestionCategoryId = category?.CategoryId,
+                        Sequence = (nextSection?.Sequence) ?? 0,
                     };
 
                     return sectionModel;
@@ -185,6 +187,7 @@ public class ProjectRecordQuestionsetController : ControllerBase
                         SectionId = prevSection?.SectionId,
                         SectionName = prevSection?.SectionName?.ToString(),
                         QuestionCategoryId = category?.CategoryId,
+                        Sequence = (prevSection?.Sequence) ?? 0,
                     };
 
                     return sectionModel;

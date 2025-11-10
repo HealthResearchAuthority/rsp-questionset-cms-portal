@@ -40,6 +40,7 @@ public static class ContentHelpers
                 questionModel.ShowAnswerOn = questionSlot.ShowAnswerOn;
                 questionModel.SectionGroup = questionSlot.SectionGroup;
                 questionModel.SequenceInSectionGroup = questionSlot.SequenceInSectionGroup;
+                questionModel.IsEditable = questionSlot.IsEditable;
 
                 if (associatedQuestion != null)
                 {
