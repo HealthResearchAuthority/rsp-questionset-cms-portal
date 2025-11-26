@@ -41,6 +41,7 @@ public static class ContentHelpers
                 questionModel.SectionGroup = questionSlot.SectionGroup;
                 questionModel.SequenceInSectionGroup = questionSlot.SequenceInSectionGroup;
                 questionModel.IsEditable = questionSlot.IsEditable;
+                questionModel.PlaybackQuestionId = questionSlot.PlaybackQuestionId;
 
                 if (associatedQuestion != null)
                 {
