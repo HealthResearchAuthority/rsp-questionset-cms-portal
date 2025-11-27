@@ -41,4 +41,5 @@ public class QuestionModel : BaseContentObject
     public bool AffectedOrganisations { get; set; }
     public bool RequireAdditionalResources { get; set; }
     public bool UseAnswerForNextSection { get; set; }
+    public string? PlaybackQuestionId { get; set; }
 }

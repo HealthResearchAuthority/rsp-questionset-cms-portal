@@ -65,6 +65,14 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual bool IsEditable => this.Value<bool>(_publishedValueFallback, "isEditable");
 
 		///<summary>
+		/// PlaybackQuestionId: The project record question Id for which the answer should be shown for
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("playbackQuestionId")]
+		public virtual string PlaybackQuestionId => this.Value<string>(_publishedValueFallback, "playbackQuestionId");
+
+		///<summary>
 		/// Question Content
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
