@@ -38,6 +38,7 @@ public class MixedContentPageController : ControllerBase
         }
 
         var contentItems = contentItem.ContentItems;
+        model.MetaTitle = contentItem.MetaTitle;
 
         if (contentItems != null)
         {
