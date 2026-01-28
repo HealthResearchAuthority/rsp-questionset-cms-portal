@@ -57,6 +57,14 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual bool HasNoContent => this.Value<bool>(_publishedValueFallback, "hasNoContent");
 
 		///<summary>
+		/// Meta title
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("metaTitle")]
+		public virtual string MetaTitle => this.Value<string>(_publishedValueFallback, "metaTitle");
+
+		///<summary>
 		/// Page Content
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.9.2+b414456")]
