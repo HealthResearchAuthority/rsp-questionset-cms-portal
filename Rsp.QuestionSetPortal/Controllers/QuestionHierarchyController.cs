@@ -51,6 +51,15 @@ public class QuestionHierarchyController(
                 .Select(x => x.Content)
                 .OfType<ValidationRule>();
 
+            var questionContent = question.QuestionContent as Question;
+            var answers = questionContent.PossibleAnswers as IEnumerable<AnswerOption>;
+
+            foreach (var a in answers)
+            {
+                var ID = a.OptionId;
+            }
+
+
             if (validationRules?.Any(x => x.ParentQuestion != null && x.ParentQuestion.Id == questionId) == true)
             {
                 result.Add(question.QuestionId);
