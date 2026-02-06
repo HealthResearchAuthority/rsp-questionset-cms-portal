@@ -26,6 +26,20 @@ public class QuestionHierarchyController(
             return new List<string>();
         }
 
+        var questionContent = currentQuestion.QuestionContent as Question;
+        var answers = questionContent?.PossibleAnswers as IEnumerable<AnswerOption>;
+
+        if (answers != null)
+        {
+            foreach (var a in answers)
+            {
+                if (a.OptionId == answerId)
+                {
+                    // remove from answers that match the provided answerId
+                }
+            }
+        }
+
         result.AddRange(GetRelatedQuestionIds(currentQuestion.Id, currentQuestionSet));
 
         return result;
@@ -50,15 +64,6 @@ public class QuestionHierarchyController(
             var validationRules = question.ValidationRules?
                 .Select(x => x.Content)
                 .OfType<ValidationRule>();
-
-            var questionContent = question.QuestionContent as Question;
-            var answers = questionContent.PossibleAnswers as IEnumerable<AnswerOption>;
-
-            foreach (var a in answers)
-            {
-                var ID = a.OptionId;
-            }
-
 
             if (validationRules?.Any(x => x.ParentQuestion != null && x.ParentQuestion.Id == questionId) == true)
             {
