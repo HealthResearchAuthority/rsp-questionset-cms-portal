@@ -64,7 +64,6 @@ public class QuestionSetMetaDataApiController(
         // iterate over all question sets
         foreach (var set in questionSets)
         {
-            var isProjectRecordQuestionSet = set.ContentType.Alias == QuestionSet.ModelTypeAlias;
             var version = set.Value<int>("versionNumber");
             var validFrom = set.Value<DateTime>("activeFrom");
             var validTo = set.Value<DateTime>("activeTo");
