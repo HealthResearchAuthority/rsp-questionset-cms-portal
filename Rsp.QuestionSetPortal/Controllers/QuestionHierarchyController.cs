@@ -10,7 +10,8 @@ namespace Rsp.QuestionSetPortal.Controllers;
 [Route("/umbraco/api/questionHierarchy")]
 public class QuestionHierarchyController(
     IUmbracoContextAccessor contentQuery,
-    IPublishedContentQuery contentService) : ControllerBase
+    IPublishedContentQuery contentService,
+    IPublishedValueFallback publishedValueFallback) : ControllerBase
 {
     [HttpGet("relatedQuestions")]
     public async Task<List<string>> GetRelatedQuestions(string questionId, string answerId)
@@ -19,28 +20,49 @@ public class QuestionHierarchyController(
 
         var currentQuestionSet = GetQuestionsetByVersion("modifications");
 
-        var currentQuestion = currentQuestionSet?.Descendants<QuestionSlot>().FirstOrDefault(x => x.QuestionId == questionId);
+        var currentQuestion = currentQuestionSet?
+            .Descendants<QuestionSlot>()
+            .FirstOrDefault(x => x.QuestionId == questionId);
 
         if (currentQuestionSet == null || currentQuestion == null)
         {
-            return new List<string>();
+            return result;
         }
 
-        var questionContent = currentQuestion.QuestionContent as Question;
-        var answers = questionContent?.PossibleAnswers as IEnumerable<AnswerOption>;
+        // Get all related questions first
+        var relatedQuestionIds = GetRelatedQuestionIds(currentQuestion.Id, currentQuestionSet);
 
-        if (answers != null)
+        if (!relatedQuestionIds.Any())
+            return result;
+
+        var questions = currentQuestionSet.Descendants<QuestionSlot>()
+            .Where(q => relatedQuestionIds.Contains(q.QuestionId))
+            .ToList();
+
+        foreach (var question in questions)
         {
-            foreach (var a in answers)
+            var validationRules = question.ValidationRules?
+                .Select(x => x.Content)
+                .OfType<ValidationRule>();
+
+            var hasMatchingAnswerCondition = validationRules?.Any(rule =>
+                rule.Conditions?
+                    .Select(c => c.Content)
+                    .OfType<ValidationCondition>()
+                    .Any(condition =>
+                        condition.ParentOptions != null &&
+                        condition.ParentOptions
+                            .Select(p => new AnswerOption(p, publishedValueFallback))
+                            .Any(opt => opt.OptionId == answerId)
+                    ) == true
+            ) == true;
+
+            // Only include questions NOT related to this answerId
+            if (!hasMatchingAnswerCondition)
             {
-                if (a.OptionId == answerId)
-                {
-                    // remove from answers that match the provided answerId
-                }
+                result.Add(question.QuestionId);
             }
         }
-
-        result.AddRange(GetRelatedQuestionIds(currentQuestion.Id, currentQuestionSet));
 
         return result;
     }
@@ -77,32 +99,6 @@ public class QuestionHierarchyController(
 
         return result;
     }
-
-    //private List<string> GetRelatedQuestionIds(int questionId, QuestionSet questionSet)
-    //{
-    //    var result = new List<string>();
-    //    // now loop over all questions in the question set to find
-    //    // those that have a condition matching the current question and answer
-    //    var questions = questionSet.Descendants<QuestionSlot>();
-
-    //    foreach (var question in questions)
-    //    {
-    //        var validationRules = question.ValidationRules?.Select(x => x.Content) as IEnumerable<ValidationRule>;
-
-    //        if (validationRules != null)
-    //        {
-    //            // check if this question has any validation rules that relate to the original question
-    //            var matchingRule = validationRules.Any(x => x.ParentQuestion.Id == questionId);
-    //            if (matchingRule)
-    //            {
-    //                result.Add(question.QuestionId);
-    //            }
-    //        }
-    //        result.AddRange(GetRelatedQuestionIds(question.Id, questionSet));
-    //    }
-
-    //    return result;
-    //}
 
     private IPublishedContent? GetQuestionsetByVersion(string type = "projectRecord")
     {
