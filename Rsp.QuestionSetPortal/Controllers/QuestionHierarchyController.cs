@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Rsp.QuestionSetPortal.DTOs.Requests;
 using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.PublishedModels;
@@ -14,7 +16,7 @@ public class QuestionHierarchyController(
     IPublishedValueFallback publishedValueFallback) : ControllerBase
 {
     [HttpGet("relatedQuestions")]
-    public async Task<List<string>> GetRelatedQuestions(string questionId, string answerId)
+    public async Task<List<string>> GetRelatedQuestions([FromQuery] RelatedQuestionsRequest request)
     {
         var result = new List<string>();
 
@@ -22,12 +24,23 @@ public class QuestionHierarchyController(
 
         var currentQuestion = currentQuestionSet?
             .Descendants<QuestionSlot>()
-            .FirstOrDefault(x => x.QuestionId == questionId);
+            .FirstOrDefault(x => x.QuestionId == request.QuestionId);
 
         if (currentQuestionSet == null || currentQuestion == null)
         {
             return result;
         }
+
+        // Normalise for safety + performance
+        var selectedAnswerSet = request.AnswerIds?
+        .Where(x => !string.IsNullOrWhiteSpace(x))
+        .SelectMany(x => x.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        .Select(x => x.Trim())
+        .ToHashSet(StringComparer.OrdinalIgnoreCase)
+        ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (!selectedAnswerSet.Any())
+            return result;
 
         // Get all related questions first
         var relatedQuestionIds = GetRelatedQuestionIds(currentQuestion.Id, currentQuestionSet);
@@ -36,8 +49,10 @@ public class QuestionHierarchyController(
             return result;
 
         var questions = currentQuestionSet.Descendants<QuestionSlot>()
-            .Where(q => relatedQuestionIds.Contains(q.QuestionId))
+            .Where(q => !string.IsNullOrEmpty(q.QuestionId) && relatedQuestionIds.Contains(q.QuestionId!))
             .ToList();
+
+        var triggeredQuestionIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var question in questions)
         {
@@ -45,20 +60,26 @@ public class QuestionHierarchyController(
                 .Select(x => x.Content)
                 .OfType<ValidationRule>();
 
-            var hasMatchingAnswerCondition = validationRules?.Any(rule =>
-                rule.Conditions?
-                    .Select(c => c.Content)
-                    .OfType<ValidationCondition>()
-                    .Any(condition =>
-                        condition.ParentOptions != null &&
-                        condition.ParentOptions
-                            .Select(p => new AnswerOption(p, publishedValueFallback))
-                            .Any(opt => opt.OptionId == answerId)
-                    ) == true
-            ) == true;
+            var hasMatchingAnswerCondition = validationRules?
+            .SelectMany(rule => rule.Conditions ?? Enumerable.Empty<BlockListItem>())
+            .Select(c => c.Content)
+            .OfType<ValidationCondition>()
+            .Any(condition =>
+            {
+                if (condition.ParentOptions == null || !condition.ParentOptions.Any())
+                    return false;
 
-            // Only include questions NOT related to this answerId
-            if (!hasMatchingAnswerCondition)
+                var parentOptionIds = condition.ParentOptions
+                    .Select(p => new AnswerOption(p, publishedValueFallback))
+                    .Select(opt => opt.OptionId)
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                // triggered if ANY selected answer matches this condition
+                return selectedAnswerSet.Any(answerId => parentOptionIds.Contains(answerId));
+            }) == true;
+
+            if (!hasMatchingAnswerCondition && !string.IsNullOrEmpty(question!.QuestionId))
             {
                 result.Add(question.QuestionId);
             }
